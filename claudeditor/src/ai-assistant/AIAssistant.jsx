@@ -1,119 +1,41 @@
-import React, { useState, useRef, useEffect } from 'react'
-import HITLManager from '../components/HITLManager'
+import React, { useState, useEffect, useRef } from 'react'
 
 const AIAssistant = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
       type: 'assistant',
-      content: '🚀 你好！我是AI助手，現在支持多種模型！你可以選擇：\n\n🌙 **Kimi K2 (月之暗面)**\n• 1T參數MoE架構\n• 擅長中文和複雜推理\n• 支援128K上下文\n\n🔵 **Claude (Anthropic)**\n• Constitutional AI\n• 安全可靠的對話\n• 優秀的代碼能力\n\n選擇你喜歡的模型開始對話吧！',
+      content: '🚀 PowerAutomation AI 助手 v4.6.9.6 - AG-UI & SmartUI Edition\n\n我是您的智能 AI 助手！现在支持：\n\n🎨 **AG-UI 智能生成**\n• 自动生成UI组件\n• 智能布局设计\n• 多主题支持\n\n📱 **SmartUI 响应式系统**\n• 智能设备适配\n• 自动布局调整\n• 跨设备兼容\n\n💻 **开发辅助功能**\n• 代码生成和优化\n• 项目架构分析\n• 自动化测试\n\n选择功能开始使用吧！',
       timestamp: new Date().toLocaleTimeString(),
-      model: 'claude'
+      model: 'claude',
+      source: 'system'
     }
   ])
+  
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [currentModel, setCurrentModel] = useState('claude')
-  const [modelStatus, setModelStatus] = useState({})
-  const [currentTask, setCurrentTask] = useState(null)
-  const [taskProgress, setTaskProgress] = useState([])
-  const [autonomousMode, setAutonomousMode] = useState(false)
-  const [hitlNotifications, setHitlNotifications] = useState([])
   const messagesEndRef = useRef(null)
 
   // 可用模型配置
-  const availableModels = {
-    claude: {
-      name: '🔵 Claude',
-      description: 'Anthropic的Constitutional AI',
-      provider: 'anthropic'
-    },
-    kimi_k2: {
-      name: '🌙 Kimi K2',
-      description: '月之暗面的1T參數模型',
-      provider: 'novita'
-    }
-  }
+  const availableModels = [
+    { id: 'claude', name: 'Claude 3.5 Sonnet', icon: '🔵', cost: '$0.015', quality: '最高' },
+    { id: 'kimi', name: 'Kimi K2 (推荐)', icon: '🌙', cost: '$0.006', quality: '高' },
+    { id: 'gpt4', name: 'GPT-4', icon: '🟢', cost: '$0.030', quality: '高' },
+    { id: 'gpt3.5', name: 'GPT-3.5 Turbo', icon: '🟡', cost: '$0.002', quality: '中' }
+  ]
 
-  // 添加HITL通知
-  const addHitlNotification = (type, title, message, context = {}) => {
-    const notification = {
-      id: Date.now() + Math.random(),
-      type,
-      title,
-      message,
-      context,
-      timestamp: new Date().toISOString(),
-      placeholder: context.placeholder || ''
-    }
-    setHitlNotifications(prev => [...prev, notification])
-    return notification.id
-  }
+  // 快速操作按钮
+  const quickActions = [
+    { label: '🎨 生成AG-UI组件', action: '使用AG-UI系统生成智能UI组件' },
+    { label: '📱 创建SmartUI布局', action: '创建响应式SmartUI布局设计' },
+    { label: '🚀 创建React应用', action: '创建一个完整的React应用，包含路由和状态管理' },
+    { label: '🐛 自动调试', action: '扫描并修复当前项目中的所有错误' },
+    { label: '⚡ 性能优化', action: '分析并优化项目性能，提供详细报告' },
+    { label: '🧪 生成测试', action: '为整个项目生成完整的测试套件' }
+  ]
 
-  // 處理HITL用戶操作
-  const handleHitlUserAction = async (actionData) => {
-    const { notificationId, type, action, userResponse, userInput, context } = actionData
-    
-    console.log('HITL用戶操作:', actionData)
-    
-    // 清除已處理的通知
-    setHitlNotifications(prev => prev.filter(n => n.id !== notificationId))
-    
-    // 根據操作類型處理
-    switch (type) {
-      case 'config_required':
-        if (userResponse === 'configure' && userInput) {
-          if (context.configType === 'hf_token') {
-            // 保存HuggingFace Token配置
-            localStorage.setItem('hf_token', userInput)
-            addSystemMessage(`✅ HuggingFace Token已配置，正在重新嘗試API調用...`)
-            // 重新嘗試之前失敗的操作
-            if (context.retryAction) {
-              setTimeout(() => context.retryAction(), 1000)
-            }
-          }
-        }
-        break
-        
-      case 'api_error':
-        if (userResponse === 'retry') {
-          addSystemMessage(`🔄 正在重試API調用...`)
-          if (context.retryAction) {
-            setTimeout(() => context.retryAction(), 1000)
-          }
-        } else if (userResponse === 'manual_config') {
-          addHitlNotification(
-            'config_required',
-            '⚙️ 需要配置API密鑰',
-            '請輸入您的HuggingFace Token以啟用AI功能',
-            { 
-              configType: 'hf_token',
-              placeholder: 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-              retryAction: context.retryAction
-            }
-          )
-        }
-        break
-        
-      case 'network_error':
-        if (userResponse === 'use_local') {
-          addSystemMessage(`💻 已切換到本地模式，某些功能可能受限`)
-          setCurrentModel('claude') // 切換到本地Claude模式
-        } else if (userResponse === 'check_network') {
-          addSystemMessage(`🔍 正在檢查網絡連接...`)
-          setTimeout(() => {
-            addSystemMessage(`✅ 網絡檢查完成，請重新嘗試`)
-          }, 2000)
-        }
-        break
-    }
-  }
-
-  // 清除HITL通知
-  const clearHitlNotification = (notificationId) => {
-    setHitlNotifications(prev => prev.filter(n => n.id !== notificationId))
-  }
-
+  // 滚动到底部
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -122,47 +44,30 @@ const AIAssistant = () => {
     scrollToBottom()
   }, [messages])
 
-  // 檢查模型狀態
-  useEffect(() => {
-    checkModelStatus()
-  }, [])
-
-  const checkModelStatus = async () => {
-    try {
-      const response = await fetch('http://localhost:8003/api/models')
-      const data = await response.json()
-      
-      const status = {}
-      data.models.forEach(model => {
-        status[model.id] = { available: true, ...model }
-      })
-      setModelStatus(status)
-    } catch (error) {
-      console.error('檢查模型狀態失敗:', error)
-      // 設置默認狀態
-      setModelStatus({
-        claude: { available: true, name: '🔵 Claude' },
-        kimi_k2: { available: false, name: '🌙 Kimi K2' }
-      })
-    }
-  }
-
-  const handleModelChange = (newModel) => {
-    const oldModel = currentModel
-    setCurrentModel(newModel)
+  // 生成 AI 响应
+  const generateAIResponse = (userInput) => {
+    const input = userInput.toLowerCase()
     
-    const modelInfo = availableModels[newModel]
-    const switchMessage = {
-      id: Date.now(),
-      type: 'system',
-      content: `🔄 已切換到 ${modelInfo.name} 模型\n${modelInfo.description}`,
-      timestamp: new Date().toLocaleTimeString(),
-      model: newModel
+    if (input.includes('ag-ui') || input.includes('agui')) {
+      return '🎨 **AG-UI 智能组件生成**\n\n我可以帮您：\n• 生成智能UI组件\n• 创建自适应布局\n• 设计主题系统\n• 优化用户体验\n\n请告诉我您需要什么类型的组件？'
     }
     
-    setMessages(prev => [...prev, switchMessage])
+    if (input.includes('smartui') || input.includes('响应式')) {
+      return '📱 **SmartUI 响应式系统**\n\n我可以帮您：\n• 创建响应式布局\n• 适配多种设备\n• 优化移动端体验\n• 实现智能断点\n\n请描述您的布局需求！'
+    }
+    
+    if (input.includes('hello') || input.includes('你好') || input.includes('hi')) {
+      return '👋 你好！我是 PowerAutomation AI 助手，专门支持 AG-UI 和 SmartUI 功能。我可以帮助您进行智能UI设计、响应式布局和代码开发。'
+    }
+    
+    if (input.includes('帮助') || input.includes('help') || input.includes('功能')) {
+      return '🚀 **我的核心能力**:\n\n🎨 **AG-UI 智能生成**:\n• 自动生成UI组件\n• 智能布局设计\n• 多主题支持\n\n📱 **SmartUI 响应式**:\n• 智能设备适配\n• 自动布局调整\n• 跨设备兼容\n\n💻 **开发辅助**:\n• 代码生成和优化\n• 项目架构分析\n• 自动化测试\n\n请告诉我您需要什么帮助！'
+    }
+    
+    return `🤖 我理解您的需求: "${userInput}"\n\n💡 **建议**: 我可以帮您使用 AG-UI 和 SmartUI 功能。例如：\n• "生成一个响应式导航栏"\n• "创建AG-UI仪表板组件"\n• "优化移动端布局"`
   }
 
+  // 发送消息
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return
 
@@ -175,415 +80,29 @@ const AIAssistant = () => {
     }
 
     setMessages(prev => [...prev, userMessage])
-    const originalMessage = inputMessage
     setInputMessage('')
     setIsLoading(true)
 
-    const retryAction = () => handleSendMessage()
-
     try {
-      // 檢查是否有配置的token
-      const hfToken = localStorage.getItem('hf_token') || process.env.HF_TOKEN
-      
-      if (!hfToken && currentModel === 'kimi_k2') {
-        // 觸發HITL配置請求
-        addHitlNotification(
-          'config_required',
-          '⚙️ 需要配置HuggingFace Token',
-          'Kimi K2模型需要有效的HuggingFace Token才能正常工作',
-          {
-            configType: 'hf_token',
-            placeholder: 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-            retryAction: retryAction
-          }
-        )
-        setIsLoading(false)
-        return
-      }
-
-      // 嘗試調用新的多模型API  
-      const response = await fetch('http://localhost:8003/api/ai/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': hfToken ? `Bearer ${hfToken}` : undefined
-        },
-        body: JSON.stringify({
-          message: originalMessage,
-          model: currentModel,
-          max_tokens: 1000,
-          temperature: 0.7,
-          hf_token: hfToken
-        })
-      })
-      
-      if (!response.ok) {
-        throw new Error(`API調用失敗: ${response.status} ${response.statusText}`)
-      }
-      
-      const data = await response.json()
-      
-      const aiResponse = {
-        id: Date.now() + 1,
-        type: 'assistant',
-        content: data.response,
-        timestamp: new Date().toLocaleTimeString(),
-        model: currentModel,
-        api_used: true
-      }
-      
-      setMessages(prev => [...prev, aiResponse])
-      
-    } catch (error) {
-      console.error('調用AI服務失敗:', error)
-      
-      // 檢查是否是認證錯誤
-      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-        addHitlNotification(
-          'api_error',
-          '🚨 API認證失敗',
-          'HuggingFace Token可能無效或已過期，請檢查配置',
-          {
-            error: error.message,
-            retryAction: retryAction
-          }
-        )
-      } else if (error.message.includes('Network') || error.message.includes('fetch')) {
-        addHitlNotification(
-          'network_error',
-          '🌐 網絡連接問題',
-          '無法連接到AI服務，請檢查網絡連接或使用本地模式',
-          {
-            error: error.message,
-            retryAction: retryAction
-          }
-        )
-      } else {
-        addHitlNotification(
-          'api_error',
-          '🚨 API調用失敗',
-          '調用AI服務時發生錯誤，您可以重試或檢查配置',
-          {
-            error: error.message,
-            details: error.stack,
-            retryAction: retryAction
-          }
-        )
-      }
-      
-      // 嘗試舊版API作為降級
-      try {
-        const response = await fetch('http://localhost:8082/api/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: originalMessage,
-            project_path: './',
-            use_project_context: true
-          })
-        })
-        
-        const data = await response.json()
-        
+      // 模拟 AI 响应
+      setTimeout(() => {
         const aiResponse = {
           id: Date.now() + 1,
           type: 'assistant',
-          content: data.response,
+          content: generateAIResponse(inputMessage),
           timestamp: new Date().toLocaleTimeString(),
-          model: 'claude',
-          project_context_used: data.project_context_used
+          model: currentModel
         }
-        
         setMessages(prev => [...prev, aiResponse])
-        
-      } catch (fallbackError) {
-        console.error('所有API調用失敗:', fallbackError)
-        // 降級到本地響應
-        const fallbackResponse = {
-          id: Date.now() + 1,
-          type: 'assistant',
-          content: generateAIResponse(originalMessage, currentModel),
-          timestamp: new Date().toLocaleTimeString(),
-          model: currentModel,
-          fallback: true
-        }
-        setMessages(prev => [...prev, fallbackResponse])
-      }
-    }
-    
-    setIsLoading(false)
-  }
-
-  // 添加系統消息
-  const addSystemMessage = (content) => {
-    const systemMessage = {
-      id: Date.now(),
-      type: 'system',
-      content,
-      timestamp: new Date().toLocaleTimeString()
-    }
-    setMessages(prev => [...prev, systemMessage])
-  }
-
-  // 觸發自主任務執行
-  const triggerAutonomousTask = async (taskDescription) => {
-    setInputMessage('')
-    setIsLoading(true)
-    
-    const taskMessage = {
-      id: Date.now(),
-      type: 'user', 
-      content: taskDescription,
-      timestamp: new Date().toLocaleTimeString()
-    }
-    
-    setMessages(prev => [...prev, taskMessage])
-    
-    try {
-      // 調用自主任務API
-      const response = await fetch('http://localhost:8082/api/autonomous-task', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          task_description: taskDescription,
-          project_path: './',
-          context: {}
-        })
-      })
-      
-      const data = await response.json()
-      
-      if (data.status === 'created') {
-        const taskPlan = data.task_plan
-        setCurrentTask(taskPlan)
-        
-        const planMessage = {
-          id: Date.now() + 1,
-          type: 'assistant',
-          content: `🚀 **自主任務已創建**: ${taskPlan.title}\n\n📋 **執行計劃**:\n${taskPlan.steps.map((step, index) => `${index + 1}. ${step.description} (預計${step.estimated_time})`).join('\n')}\n\n⏱️ **總預計時間**: ${taskPlan.total_time}\n\n🤖 開始自主執行...`,
-          timestamp: new Date().toLocaleTimeString(),
-          taskPlan: taskPlan
-        }
-        
-        setMessages(prev => [...prev, planMessage])
-        
-        // 開始執行任務
-        executeAutonomousTask(taskPlan)
-      }
-      
+        setIsLoading(false)
+      }, 1000)
     } catch (error) {
-      console.error('創建自主任務失敗:', error)
-      const errorMessage = {
-        id: Date.now() + 1,
-        type: 'assistant',
-        content: '⚠️ 自主任務創建失敗，使用本地任務規劃...',
-        timestamp: new Date().toLocaleTimeString()
-      }
-      setMessages(prev => [...prev, errorMessage])
-      
-      // 降級到本地任務執行
-      const localTaskPlan = generateTaskPlan(taskDescription)
-      setTimeout(() => executeAutonomousTask(localTaskPlan), 500)
+      console.error('发送消息失败:', error)
+      setIsLoading(false)
     }
-    
-    setIsLoading(false)
   }
 
-  // 項目分析功能
-  const analyzeProject = async () => {
-    setIsLoading(true)
-    
-    const analysisMessage = {
-      id: Date.now(),
-      type: 'assistant',
-      content: '🔍 開始分析項目代碼庫...這將提供比Manus更深入的理解能力！',
-      timestamp: new Date().toLocaleTimeString()
-    }
-    
-    setMessages(prev => [...prev, analysisMessage])
-    
-    try {
-      const response = await fetch('http://localhost:8082/api/analyze-project', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          project_path: './'
-        })
-      })
-      
-      const data = await response.json()
-      
-      const resultMessage = {
-        id: Date.now() + 1,
-        type: 'assistant',
-        content: `✅ **項目分析已啟動**\n\n${data.message}\n\n🧠 分析完成後，我將具備：\n• 完整的項目架構理解\n• 智能的代碼建議\n• 基於上下文的自主任務執行\n\n這就是我們超越Manus的關鍵優勢！`,
-        timestamp: new Date().toLocaleTimeString()
-      }
-      
-      setMessages(prev => [...prev, resultMessage])
-      
-    } catch (error) {
-      console.error('項目分析失敗:', error)
-      const errorMessage = {
-        id: Date.now() + 1,
-        type: 'assistant',
-        content: '⚠️ 項目分析服務暫時不可用，但基礎功能仍可正常使用',
-        timestamp: new Date().toLocaleTimeString()
-      }
-      setMessages(prev => [...prev, errorMessage])
-    }
-    
-    setIsLoading(false)
-  }
-
-  // 自主任務規劃和執行
-  const generateTaskPlan = (taskDescription) => {
-    const input = taskDescription.toLowerCase()
-    
-    if (input.includes('創建') || input.includes('新建') || input.includes('build') || input.includes('create')) {
-      return {
-        taskId: Date.now(),
-        title: `創建項目: ${taskDescription}`,
-        steps: [
-          { id: 1, description: '📋 分析需求和技術方案', status: 'pending', estimatedTime: '2分鐘' },
-          { id: 2, description: '🏗️ 設計項目架構', status: 'pending', estimatedTime: '5分鐘' },
-          { id: 3, description: '⚙️ 生成核心代碼結構', status: 'pending', estimatedTime: '8分鐘' },
-          { id: 4, description: '🧪 創建測試用例', status: 'pending', estimatedTime: '3分鐘' },
-          { id: 5, description: '📝 生成文檔', status: 'pending', estimatedTime: '2分鐘' }
-        ],
-        totalTime: '20分鐘',
-        autonomousExecution: true
-      }
-    }
-    
-    if (input.includes('調試') || input.includes('debug') || input.includes('修復') || input.includes('fix')) {
-      return {
-        taskId: Date.now(),
-        title: `調試任務: ${taskDescription}`,
-        steps: [
-          { id: 1, description: '🔍 掃描代碼錯誤', status: 'pending', estimatedTime: '1分鐘' },
-          { id: 2, description: '📊 分析錯誤根因', status: 'pending', estimatedTime: '3分鐘' },
-          { id: 3, description: '🛠️ 生成修復方案', status: 'pending', estimatedTime: '5分鐘' },
-          { id: 4, description: '✅ 自動應用修復', status: 'pending', estimatedTime: '2分鐘' },
-          { id: 5, description: '🧪 驗證修復效果', status: 'pending', estimatedTime: '2分鐘' }
-        ],
-        totalTime: '13分鐘',
-        autonomousExecution: true
-      }
-    }
-    
-    if (input.includes('優化') || input.includes('optimize') || input.includes('性能')) {
-      return {
-        taskId: Date.now(),
-        title: `性能優化: ${taskDescription}`,
-        steps: [
-          { id: 1, description: '📈 性能基線測試', status: 'pending', estimatedTime: '3分鐘' },
-          { id: 2, description: '🔍 識別性能瓶頸', status: 'pending', estimatedTime: '5分鐘' },
-          { id: 3, description: '⚡ 實施優化策略', status: 'pending', estimatedTime: '10分鐘' },
-          { id: 4, description: '📊 性能對比測試', status: 'pending', estimatedTime: '3分鐘' },
-          { id: 5, description: '📋 生成優化報告', status: 'pending', estimatedTime: '2分鐘' }
-        ],
-        totalTime: '23分鐘',
-        autonomousExecution: true
-      }
-    }
-    
-    // 默認任務規劃
-    return {
-      taskId: Date.now(),
-      title: `自定義任務: ${taskDescription}`,
-      steps: [
-        { id: 1, description: '🎯 分析任務需求', status: 'pending', estimatedTime: '2分鐘' },
-        { id: 2, description: '📋 制定執行計劃', status: 'pending', estimatedTime: '3分鐘' },
-        { id: 3, description: '⚙️ 執行核心任務', status: 'pending', estimatedTime: '10分鐘' },
-        { id: 4, description: '✅ 質量檢查', status: 'pending', estimatedTime: '3分鐘' },
-        { id: 5, description: '📝 總結報告', status: 'pending', estimatedTime: '2分鐘' }
-      ],
-      totalTime: '20分鐘',
-      autonomousExecution: true
-    }
-  }
-  
-  const executeAutonomousTask = async (taskPlan) => {
-    setCurrentTask(taskPlan)
-    setAutonomousMode(true)
-    
-    const updatedMessages = [...messages, {
-      id: Date.now(),
-      type: 'assistant',
-      content: `🚀 **開始自主執行任務**: ${taskPlan.title}\n\n📋 **執行計劃**:\n${taskPlan.steps.map((step, index) => `${index + 1}. ${step.description} (預計${step.estimatedTime})`).join('\n')}\n\n⏱️ **總預計時間**: ${taskPlan.totalTime}\n\n🤖 我將自主完成這個任務，你可以隨時查看進度...`,
-      timestamp: new Date().toLocaleTimeString(),
-      taskPlan: taskPlan
-    }]
-    setMessages(updatedMessages)
-    
-    // 模擬自主執行過程
-    for (const step of taskPlan.steps) {
-      await new Promise(resolve => setTimeout(resolve, 2000)) // 模擬執行時間
-      
-      step.status = 'in_progress'
-      setTaskProgress(prev => [...prev, { ...step, status: 'in_progress', timestamp: new Date() }])
-      
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      step.status = 'completed'
-      setTaskProgress(prev => prev.map(p => p.id === step.id ? { ...p, status: 'completed' } : p))
-      
-      const progressMessage = {
-        id: Date.now() + Math.random(),
-        type: 'assistant',
-        content: `✅ **完成步驟 ${step.id}**: ${step.description}\n\n🔍 **執行詳情**: AI自主分析並完成了此步驟，應用了最佳實踐...`,
-        timestamp: new Date().toLocaleTimeString(),
-        isProgress: true
-      }
-      
-      setMessages(prev => [...prev, progressMessage])
-    }
-    
-    // 任務完成
-    const completionMessage = {
-      id: Date.now(),
-      type: 'assistant', 
-      content: `🎉 **任務完成**: ${taskPlan.title}\n\n✅ **執行結果**:\n• 所有${taskPlan.steps.length}個步驟已完成\n• 總執行時間: ${taskPlan.totalTime}\n• 質量檢查: 通過\n\n📋 **下一步建議**:\n• 查看生成的代碼\n• 運行測試驗證\n• 部署到測試環境\n\n需要我執行其他任務嗎？`,
-      timestamp: new Date().toLocaleTimeString(),
-      isCompletion: true
-    }
-    
-    setMessages(prev => [...prev, completionMessage])
-    setAutonomousMode(false)
-  }
-  
-  const generateAIResponse = (userInput) => {
-    // 檢查是否是任務請求
-    const taskKeywords = ['創建', '新建', '調試', '修復', '優化', '分析', '生成', 'create', 'build', 'debug', 'fix', 'optimize']
-    const isTaskRequest = taskKeywords.some(keyword => userInput.toLowerCase().includes(keyword))
-    
-    if (isTaskRequest) {
-      const taskPlan = generateTaskPlan(userInput)
-      // 自動開始執行任務
-      setTimeout(() => executeAutonomousTask(taskPlan), 500)
-      return `🎯 **任務識別**: ${userInput}\n\n🤖 我已經為你制定了完整的執行計劃，即將開始自主執行...`
-    }
-    
-    const input = userInput.toLowerCase()
-    
-    if (input.includes('hello') || input.includes('你好') || input.includes('hi')) {
-      return '👋 你好！我是具備自主執行能力的AI助手。告訴我你想完成什麼任務，我會制定計劃並自主執行！'
-    }
-    
-    if (input.includes('幫助') || input.includes('help') || input.includes('功能')) {
-      return '🚀 **我的核心能力**:\n\n🎯 **自主任務執行**:\n• 理解你的需求\n• 制定詳細計劃\n• 自主完成任務\n• 實時進度報告\n\n💡 **試試這些命令**:\n• "創建一個React組件"\n• "調試這段代碼"\n• "優化性能"\n• "分析項目架構"'
-    }
-    
-    return `🤖 我理解你想要: "${userInput}"\n\n💡 **建議**: 描述具體任務，我會為你制定執行計劃。例如：\n• "創建一個用戶登錄功能"\n• "修復這個API錯誤"\n• "優化代碼性能"`
-  }
-
+  // 按键处理
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -591,281 +110,250 @@ const AIAssistant = () => {
     }
   }
 
-  const quickActions = [
-    { label: '🚀 創建React應用', action: '創建一個完整的React應用，包含路由和狀態管理' },
-    { label: '🐛 自動調試', action: '掃描並修復當前項目中的所有錯誤' },
-    { label: '⚡ 性能優化', action: '分析並優化項目性能，提供詳細報告' },
-    { label: '🧪 生成測試', action: '為整個項目生成完整的測試套件' },
-    { label: '📝 API文檔', action: '自動生成API接口文檔' },
-    { label: '🔍 代碼審查', action: '進行全面代碼質量審查和改進建議' }
-  ]
+  // 快速操作处理
+  const handleQuickAction = (action) => {
+    setInputMessage(action)
+    setTimeout(() => handleSendMessage(), 100)
+  }
 
   return (
-    <>
-      {/* HITL Manager - AG-UI + SmartUI */}
-      <HITLManager
-        notifications={hitlNotifications}
-        onUserAction={handleHitlUserAction}
-        clearNotification={clearHitlNotification}
-      />
-      
-      <div style={{ 
-        height: '100%', 
-        display: 'flex', 
-        flexDirection: 'column',
-        backgroundColor: '#f8f9fa'
-      }}>
-      {/* Header */}
-      <div style={{ 
-        padding: '15px', 
-        backgroundColor: '#1e3a8a', 
-        color: 'white',
-        borderBottom: '1px solid #e9ecef'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h3 style={{ margin: 0, fontSize: '16px' }}>🚀 自主AI助手 ({availableModels[currentModel].name})</h3>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', opacity: 0.9 }}>
-              PowerAutomation v4.5 - 多模型支持 + 自主任務執行引擎
-            </p>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {autonomousMode && (
-              <div style={{ 
-                padding: '4px 8px', 
-                backgroundColor: '#16a085', 
-                borderRadius: '12px',
-                fontSize: '10px',
-                fontWeight: 'bold'
-              }}>
-                🤖 自主執行中
-              </div>
-            )}
-            <div style={{ 
-              padding: '4px 8px', 
-              backgroundColor: 'rgba(255,255,255,0.2)', 
-              borderRadius: '8px',
-              fontSize: '10px'
-            }}>
-              vs Manus準備就緒
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Model Selection Panel */}
-      <div style={{ 
-        padding: '10px',
-        backgroundColor: '#f8f9fa',
-        borderBottom: '1px solid #e9ecef'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
-          <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#333' }}>選擇AI模型:</label>
+    <div className="ai-assistant">
+      {/* 头部 */}
+      <div className="ai-assistant-header">
+        <h2>🤖 AI 助手 - AG-UI & SmartUI</h2>
+        <div className="model-selector">
           <select 
-            value={currentModel}
-            onChange={(e) => handleModelChange(e.target.value)}
-            style={{
-              padding: '4px 8px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '12px',
-              backgroundColor: 'white'
-            }}
+            value={currentModel} 
+            onChange={(e) => setCurrentModel(e.target.value)}
+            className="model-select"
           >
-            {Object.entries(availableModels).map(([key, model]) => (
-              <option key={key} value={key}>
-                {model.name}
+            {availableModels.map(model => (
+              <option key={model.id} value={model.id}>
+                {model.icon} {model.name} ({model.cost})
               </option>
             ))}
           </select>
         </div>
-        <div style={{ fontSize: '11px', color: '#666' }}>
-          {availableModels[currentModel].description}
-        </div>
       </div>
 
-      {/* 項目分析按鈕 */}
-      <div style={{ 
-        padding: '10px',
-        backgroundColor: '#f0f8ff',
-        borderBottom: '1px solid #e9ecef'
-      }}>
-        <button
-          onClick={analyzeProject}
-          disabled={isLoading}
-          style={{
-            width: '100%',
-            padding: '8px',
-            backgroundColor: isLoading ? '#ccc' : '#1e3a8a',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold'
-          }}
-        >
-          {isLoading ? '🔍 分析中...' : '🧠 分析項目 (超越Manus的關鍵)'}
-        </button>
-      </div>
-
-      {/* Quick Actions */}
-      <div style={{ 
-        padding: '10px',
-        backgroundColor: 'white',
-        borderBottom: '1px solid #e9ecef'
-      }}>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '5px'
-        }}>
-          {quickActions.map((action, index) => (
-            <button
-              key={index}
-              onClick={() => triggerAutonomousTask(action.action)}
-              style={{
-                padding: '6px 8px',
-                fontSize: '11px',
-                backgroundColor: '#f1f3f4',
-                border: '1px solid #dadce0',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                textAlign: 'left'
-              }}
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div style={{ 
-        flex: 1, 
-        overflowY: 'auto', 
-        padding: '10px',
-        backgroundColor: 'white'
-      }}>
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            style={{
-              marginBottom: '15px',
-              padding: '10px',
-              borderRadius: '8px',
-              backgroundColor: message.type === 'user' ? '#e3f2fd' : '#f5f5f5',
-              border: `1px solid ${message.type === 'user' ? '#bbdefb' : '#e0e0e0'}`
-            }}
+      {/* 快速操作按钮 */}
+      <div className="quick-actions">
+        {quickActions.map((action, index) => (
+          <button
+            key={index}
+            onClick={() => handleQuickAction(action.action)}
+            className="quick-action-btn"
           >
-            <div style={{ 
-              fontSize: '12px', 
-              color: '#666',
-              marginBottom: '5px',
-              fontWeight: 'bold'
-            }}>
-              {message.type === 'user' ? '👤 You' : 
-               message.type === 'system' ? '🔄 System' :
-               message.model === 'kimi_k2' ? '🌙 Kimi K2' : '🔵 Claude'} • {message.timestamp}
-            </div>
-            <div style={{ 
-              fontSize: '14px',
-              lineHeight: '1.4',
-              whiteSpace: 'pre-wrap'
-            }}>
-              {message.content}
-              {message.project_context_used && (
-                <div style={{
-                  marginTop: '8px',
-                  padding: '4px 8px',
-                  backgroundColor: '#e8f5e8',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  color: '#2d5016'
-                }}>
-                  🧠 基於項目上下文回復
-                </div>
-              )}
-              {message.fallback && (
-                <div style={{
-                  marginTop: '8px', 
-                  padding: '4px 8px',
-                  backgroundColor: '#fff3cd',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  color: '#856404'
-                }}>
-                  ⚠️ 本地降級回復
-                </div>
-              )}
+            {action.label}
+          </button>
+        ))}
+      </div>
+
+      {/* 消息区域 */}
+      <div className="messages-container">
+        {messages.map(message => (
+          <div key={message.id} className={`message ${message.type}`}>
+            <div className="message-content">
+              <div className="message-text">{message.content}</div>
+              <div className="message-meta">
+                <span className="timestamp">{message.timestamp}</span>
+                <span className="model">{message.model}</span>
+              </div>
             </div>
           </div>
         ))}
-        
         {isLoading && (
-          <div style={{
-            padding: '10px',
-            borderRadius: '8px',
-            backgroundColor: '#f5f5f5',
-            border: '1px solid #e0e0e0',
-            textAlign: 'center',
-            color: '#666'
-          }}>
-            {autonomousMode ? '🤖 自主執行中...' : '🧠 Claude正在思考...'}
-            {autonomousMode && (
-              <div style={{ marginTop: '5px', fontSize: '12px' }}>
-                展示與Manus競爭的自主能力
-              </div>
-            )}
+          <div className="message assistant">
+            <div className="message-content">
+              <div className="loading">🤖 正在思考中...</div>
+            </div>
           </div>
         )}
-        
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div style={{ 
-        padding: '10px',
-        backgroundColor: 'white',
-        borderTop: '1px solid #e9ecef'
-      }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
+      {/* 输入区域 */}
+      <div className="input-container">
+        <div className="input-wrapper">
           <textarea
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="描述你的任務，我會自主執行...(如：創建登錄功能、調試API錯誤、優化性能)"
-            style={{
-              flex: 1,
-              padding: '8px',
-              border: '1px solid #dadce0',
-              borderRadius: '4px',
-              resize: 'none',
-              fontSize: '14px',
-              minHeight: '36px',
-              maxHeight: '100px'
-            }}
-            rows={1}
+            placeholder="输入您的问题或需求... (支持 AG-UI 和 SmartUI 功能)"
+            className="message-input"
+            rows="3"
           />
-          <button
+          <button 
             onClick={handleSendMessage}
             disabled={!inputMessage.trim() || isLoading}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: isLoading ? '#ccc' : '#1e3a8a',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              fontSize: '14px'
-            }}
+            className="send-button"
           >
-            Send
+            {isLoading ? '⏳' : '📤'}
           </button>
         </div>
       </div>
-      </div>
-    </>
+
+      <style jsx>{`
+        .ai-assistant {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+        }
+
+        .ai-assistant-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1rem;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ai-assistant-header h2 {
+          margin: 0;
+          color: white;
+          font-weight: 600;
+        }
+
+        .model-select {
+          padding: 0.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 0.5rem;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          backdrop-filter: blur(10px);
+        }
+
+        .quick-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          padding: 1rem;
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .quick-action-btn {
+          padding: 0.5rem 1rem;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 1rem;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: translateY(-2px);
+        }
+
+        .messages-container {
+          flex: 1;
+          overflow-y: auto;
+          padding: 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .message {
+          display: flex;
+          max-width: 80%;
+        }
+
+        .message.user {
+          align-self: flex-end;
+        }
+
+        .message.assistant {
+          align-self: flex-start;
+        }
+
+        .message-content {
+          background: rgba(255, 255, 255, 0.1);
+          padding: 1rem;
+          border-radius: 1rem;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .message.user .message-content {
+          background: rgba(255, 255, 255, 0.2);
+        }
+
+        .message-text {
+          white-space: pre-wrap;
+          line-height: 1.5;
+        }
+
+        .message-meta {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 0.5rem;
+          font-size: 0.75rem;
+          opacity: 0.7;
+        }
+
+        .input-container {
+          padding: 1rem;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .input-wrapper {
+          display: flex;
+          gap: 0.5rem;
+          align-items: flex-end;
+        }
+
+        .message-input {
+          flex: 1;
+          padding: 0.75rem;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 0.5rem;
+          resize: none;
+          font-family: inherit;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          backdrop-filter: blur(10px);
+        }
+
+        .message-input::placeholder {
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        .send-button {
+          padding: 0.75rem 1rem;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 0.5rem;
+          cursor: pointer;
+          font-size: 1.2rem;
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+
+        .send-button:disabled {
+          background: rgba(255, 255, 255, 0.1);
+          cursor: not-allowed;
+        }
+
+        .loading {
+          font-style: italic;
+          opacity: 0.8;
+        }
+      `}</style>
+    </div>
   )
 }
 
