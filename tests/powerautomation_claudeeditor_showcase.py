@@ -365,7 +365,7 @@ class EnterpriseAIModelsShowcase:
                 "cli": "gemini-cli",
                 "features": ["多模態處理", "企業集成", "自定義微調"]
             },
-            "kimi_k2_local": {
+            "kimi_k2_cloud": {
                 "name": "Kimi K2 Local",
                 "deployment": "局域網部署",
                 "cli": "kimi-cli", 

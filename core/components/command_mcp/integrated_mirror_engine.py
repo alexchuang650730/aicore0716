@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class ModelProvider(Enum):
     """模型提供商"""
-    K2_LOCAL = "k2_local"
+    K2_CLOUD = "k2_cloud"
     CLAUDE_CODE = "claude_code"
     AUTO = "auto"
 
@@ -56,13 +56,13 @@ class IntegratedMirrorEngine:
             "k2_preference_rate": 100.0
         }
         
-        # K2 本地处理器
+        # K2 云端处理器
         self.k2_handlers = self._init_k2_handlers()
         
         self.logger.info("🚀 集成 Mirror Engine 初始化完成 - 默认 K2 优先")
     
     def _init_k2_handlers(self) -> Dict[str, callable]:
-        """初始化 K2 本地处理器"""
+        """初始化 K2 云端处理器"""
         return {
             "/help": self._k2_handle_help,
             "/status": self._k2_handle_status,
@@ -194,7 +194,7 @@ class IntegratedMirrorEngine:
     # K2 处理器实现
     async def _k2_handle_help(self, args: List[str]) -> str:
         """K2 处理 help 命令"""
-        return """🤖 K2 本地助手 - 可用命令:
+        return """🤖 K2 云端助手 - 可用命令:
 
 📋 基础命令:
   /help              - 显示此帮助信息
@@ -231,15 +231,15 @@ class IntegratedMirrorEngine:
   /switch-model claude  - 切换到 Claude Code
   /switch-model k2      - 切换回 K2 (默认)
 
-💡 提示: 默认使用 K2 本地模型，响应更快，成本更低！
+💡 提示: 默认使用 K2 云端模型，响应更快，成本更低！
 """
     
     async def _k2_handle_status(self, args: List[str]) -> str:
         """K2 处理 status 命令"""
-        return f"""🤖 K2 本地助手状态:
+        return f"""🤖 K2 云端助手状态:
 
 🔋 系统状态: 运行中
-🎯 当前模型: K2 本地模型
+🎯 当前模型: K2 云端模型
 ⚡ 执行模式: {self.default_mode.value}
 
 📊 使用统计:
@@ -256,7 +256,7 @@ class IntegratedMirrorEngine:
         """K2 处理 config 命令"""
         if not args:
             return f"""⚙️ 当前配置:
-  默认模型: K2 本地模型
+  默认模型: K2 云端模型
   执行模式: {self.default_mode.value}
   回退策略: {'启用' if self.default_mode == ExecutionMode.K2_FIRST else '禁用'}
 
@@ -285,7 +285,7 @@ class IntegratedMirrorEngine:
     async def _k2_handle_chat(self, args: List[str]) -> str:
         """K2 处理 chat 命令"""
         message = " ".join(args) if args else "你好"
-        return f"""🤖 K2: 你好！我是 K2 本地助手。
+        return f"""🤖 K2: 你好！我是 K2 云端助手。
 
 你说: {message}
 
@@ -305,7 +305,7 @@ class IntegratedMirrorEngine:
         return f"""📊 K2 使用统计报告:
 
 🎯 模型使用情况:
-  K2 本地模型: {self.stats['k2_success']} 次 ({self.stats['k2_preference_rate']:.1f}%)
+  K2 云端模型: {self.stats['k2_success']} 次 ({self.stats['k2_preference_rate']:.1f}%)
   Claude Code: {self.stats['claude_fallback'] + self.stats['user_explicit_claude']} 次
 
 📈 执行统计:
@@ -315,7 +315,7 @@ class IntegratedMirrorEngine:
   用户主动选择 Claude: {self.stats['user_explicit_claude']}
 
 💰 成本节省:
-  K2 本地处理: $0.00 (免费)
+  K2 云端处理: $0.00 (免费)
   预估 Claude 成本: ${(self.stats['total_commands'] * 0.01):.2f}
   节省金额: ${(self.stats['total_commands'] * 0.01):.2f}
 
@@ -328,7 +328,7 @@ class IntegratedMirrorEngine:
             return f"""🔄 当前模型: {self.current_provider.value}
 
 可用模型:
-  k2     - K2 本地模型 (默认，推荐)
+  k2     - K2 云端模型 (默认，推荐)
   claude - Claude Code
 
 使用方法: /switch-model <model>
@@ -338,7 +338,7 @@ class IntegratedMirrorEngine:
         if model == "k2":
             self.current_provider = ModelProvider.K2_LOCAL
             self.default_mode = ExecutionMode.K2_FIRST
-            return "✅ 已切换到 K2 本地模型 (默认推荐)"
+            return "✅ 已切换到 K2 云端模型 (默认推荐)"
         elif model == "claude":
             self.current_provider = ModelProvider.CLAUDE_CODE
             return "⚠️ 已切换到 Claude Code (将产生费用)"
@@ -347,11 +347,11 @@ class IntegratedMirrorEngine:
     
     async def _k2_general_handler(self, command: str, args: List[str]) -> str:
         """K2 通用处理器"""
-        return f"""🤖 K2 本地处理: {command}
+        return f"""🤖 K2 云端处理: {command}
 
 参数: {', '.join(args) if args else '无'}
 
-✅ K2 本地模型已处理您的请求。
+✅ K2 云端模型已处理您的请求。
 
 💡 优势:
 - 本地处理，零延迟

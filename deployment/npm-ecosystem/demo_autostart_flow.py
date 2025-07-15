@@ -79,7 +79,7 @@ def demo_startup_flow():
     print("\n" + "=" * 60)
     print("🏆 自动启动完成！用户现在可以:")
     print("   📱 访问 ClaudeEditor: http://localhost:3000")
-    print("   🤖 使用 K2 本地模型 (默认)")
+    print("   🤖 使用 K2 云端模型 (默认)")
     print("   🔄 切换到 Claude Code (如需要)")
     print("   📋 查看任务列表和 AI 助手")
     print("=" * 60)
@@ -211,7 +211,7 @@ class PowerAutomationService {
                 this.services.commandMCP = { 
                     status: 'running', 
                     mode: 'backend',
-                    defaultModel: 'k2_local'
+                    defaultModel: 'k2_cloud'
                 }
             }
         } catch (error) {
@@ -219,7 +219,7 @@ class PowerAutomationService {
             this.services.commandMCP = { 
                 status: 'running', 
                 mode: 'frontend-simulation',
-                defaultModel: 'k2_local'
+                defaultModel: 'k2_cloud'
             }
         }
     }

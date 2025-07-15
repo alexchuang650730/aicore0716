@@ -316,15 +316,15 @@ class SmartRouter:
             return 0.9  # 少量上下文，K2 适合
     
     def _assess_cost_efficiency(self, command: str) -> float:
-        """评估成本效率（K2 本地部署成本更低）"""
-        # K2 本地部署，成本效率始终更高
+        """评估成本效率（K2 云端部署成本更低）"""
+        # K2 云端部署，成本效率始终更高
         return 0.95
     
     def _create_k2_decision(self, command: str, reason: str, confidence: float, 
                            fallback_available: bool = False) -> RoutingDecision:
         """创建 K2 路由决策"""
         estimated_tokens = len(command.split()) * 3  # 估算 token 数量
-        estimated_cost = estimated_tokens * 0.0001   # K2 本地成本很低
+        estimated_cost = estimated_tokens * 0.0001   # K2 云端成本很低
         
         self.routing_stats["k2_routed"] += 1
         

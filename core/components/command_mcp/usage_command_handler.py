@@ -103,7 +103,7 @@ class UsageCommandHandler:
 • 平均响应时间: {performance.get('average_response_time_ms', 0)}ms
 
 🤖 **模型使用分布**
-• K2 本地: {model_dist.get('k2_local', {}).get('count', 0)} 次 ({model_dist.get('k2_local', {}).get('percentage', 0)}%)
+• K2 云端: {model_dist.get('k2_cloud', {}).get('count', 0)} 次 ({model_dist.get('k2_cloud', {}).get('percentage', 0)}%)
 • Claude Mirror: {model_dist.get('claude_mirror', {}).get('count', 0)} 次 ({model_dist.get('claude_mirror', {}).get('percentage', 0)}%)
 • Claude 直接: {model_dist.get('claude_direct', {}).get('count', 0)} 次 ({model_dist.get('claude_direct', {}).get('percentage', 0)}%)
 
@@ -126,7 +126,7 @@ class UsageCommandHandler:
         
         for activity in activities:
             timestamp = activity['timestamp'][-8:]  # 只显示时间部分
-            model_icon = "🤖" if activity['provider'] == 'k2_local' else "🌐"
+            model_icon = "🤖" if activity['provider'] == 'k2_cloud' else "🌐"
             cost_icon = "💚" if activity['cost_usd'] < 0.001 else "💰"
             
             output += f"• {timestamp} | {model_icon} {activity['command']} | {activity['model']} | {activity['tokens']} tokens | {cost_icon} ${activity['cost_usd']}\n"

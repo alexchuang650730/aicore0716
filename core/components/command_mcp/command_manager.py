@@ -208,7 +208,7 @@ class ClaudeCodeSlashCommandHandler:
         # 添加路由信息到结果
         result["routing_info"] = {
             "model": "Kimi-K2-Instruct",
-            "provider": "k2_local",
+            "provider": "k2_cloud",
             "routing_confidence": routing_decision.confidence,
             "routing_reason": routing_decision.reason,
             "tokens": input_tokens + output_tokens,
@@ -239,7 +239,7 @@ class ClaudeCodeSlashCommandHandler:
                 "suggestion": "请尝试重新表述指令或使用K2支持的指令",
                 "routing_info": {
                     "model": "Kimi-K2-Instruct",
-                    "provider": "k2_local",
+                    "provider": "k2_cloud",
                     "forced_execution": True,
                     "original_suggestion": routing_decision.target_model.value,
                     "response_time_ms": response_time_ms,

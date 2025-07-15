@@ -17,7 +17,7 @@ class PowerAutomationService {
       services: {
         commandMCP: {
           enabled: true,
-          defaultModel: 'k2_local', // 默认使用 K2
+          defaultModel: 'k2_cloud', // 默认使用 K2 云端
           fallbackToClaudeCode: true
         },
         mirrorCode: {
@@ -98,7 +98,7 @@ class PowerAutomationService {
         this.services.commandMCP = {
           status: 'running',
           mode: result.mode || 'backend',
-          defaultModel: 'k2_local',
+          defaultModel: 'k2_cloud',
           mirrorCodeIntegrated: true
         };
         
@@ -114,7 +114,7 @@ class PowerAutomationService {
       this.services.commandMCP = {
         status: 'running',
         mode: 'frontend-simulation',
-        defaultModel: 'k2_local',
+        defaultModel: 'k2_cloud',
         mirrorCodeIntegrated: true
       };
       console.log('🔄 使用前端模拟模式运行 Command MCP');
@@ -184,14 +184,14 @@ class PowerAutomationService {
       commandMCP: this.services.commandMCP?.status === 'running',
       mirrorCode: this.services.commandMCP?.mirrorCodeIntegrated === true,
       taskSync: this.services.taskSync?.status === 'running',
-      defaultModel: this.services.commandMCP?.defaultModel === 'k2_local'
+      defaultModel: this.services.commandMCP?.defaultModel === 'k2_cloud'
     };
     
     console.log('📊 服务状态:', status);
     
     if (status.commandMCP && status.mirrorCode && status.defaultModel) {
       console.log('✅ 核心服务验证通过');
-      console.log('🤖 默认模型: K2 本地模型');
+      console.log('🤖 默认模型: K2 云端模型');
       console.log('🪞 Mirror Code: 已集成');
     } else {
       console.warn('⚠️ 部分服务可能未正常启动');
@@ -225,12 +225,12 @@ class PowerAutomationService {
   ✅ Task Sync: ${this.services.taskSync?.status}
 
 🤖 默认配置:
-  🥇 主要模型: K2 本地模型 (免费、快速)
+  🥇 主要模型: K2 云端模型 (高效、智能)
   🥈 备用模型: Claude Code (用户明确选择时)
   🪞 Mirror Code: 集成模式 (无需独立服务)
 
 💡 使用提示:
-  - 所有指令默认使用 K2 本地处理
+  - 所有指令默认使用 K2 云端处理
   - 如需 Claude Code，使用 /switch-model claude
   - 使用 /help 查看所有可用指令
     `);
@@ -295,7 +295,7 @@ class PowerAutomationService {
    */
   simulateCommandExecution(command, args, forceModel) {
     const isClaudeForced = forceModel === 'claude_code';
-    const model = isClaudeForced ? 'Claude Code' : 'K2 本地模型';
+    const model = isClaudeForced ? 'Claude Code' : 'K2 云端模型';
     
     console.log(`🔄 ${model} 处理: ${command}`);
     
@@ -304,7 +304,7 @@ class PowerAutomationService {
       success: true,
       command,
       args,
-      model: isClaudeForced ? 'claude_code' : 'k2_local',
+      model: isClaudeForced ? 'claude_code' : 'k2_cloud',
       output: `${model} 处理结果: ${command}`,
       executionTime: Math.random() * 100 + 50, // 50-150ms
       timestamp: new Date().toISOString()
@@ -325,7 +325,7 @@ class PowerAutomationService {
       throw new Error('PowerAutomation Service 未初始化');
     }
 
-    const validModels = ['k2_local', 'claude_code'];
+    const validModels = ['k2_cloud', 'claude_code'];
     if (!validModels.includes(model)) {
       throw new Error(`无效模型: ${model}`);
     }
@@ -337,7 +337,7 @@ class PowerAutomationService {
       success: true,
       previousModel: this.config.services.commandMCP.defaultModel,
       newModel: model,
-      message: `已切换到 ${model === 'k2_local' ? 'K2 本地模型' : 'Claude Code'}`
+      message: `已切换到 ${model === 'k2_cloud' ? 'K2 云端模型' : 'Claude Code'}`
     };
   }
 }

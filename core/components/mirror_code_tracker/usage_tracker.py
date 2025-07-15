@@ -16,7 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ModelProvider(Enum):
-    K2_LOCAL = "k2_local"
+    K2_CLOUD = "k2_cloud"
     CLAUDE_MIRROR = "claude_mirror"
     CLAUDE_DIRECT = "claude_direct"
 
@@ -59,7 +59,7 @@ class MirrorCodeUsageTracker:
         self.session_stats = {
             "session_start": datetime.now().isoformat(),
             "total_commands": 0,
-            "k2_local_count": 0,
+            "k2_cloud_count": 0,
             "claude_mirror_count": 0,
             "claude_direct_count": 0,
             "total_cost_usd": 0.0,
@@ -136,7 +136,7 @@ class MirrorCodeUsageTracker:
         
         # 更新模型使用计数
         if record.model_provider == ModelProvider.K2_LOCAL:
-            self.session_stats["k2_local_count"] += 1
+            self.session_stats["k2_cloud_count"] += 1
         elif record.model_provider == ModelProvider.CLAUDE_MIRROR:
             self.session_stats["claude_mirror_count"] += 1
         elif record.model_provider == ModelProvider.CLAUDE_DIRECT:
@@ -171,7 +171,7 @@ class MirrorCodeUsageTracker:
         if total_commands == 0:
             return {"message": "本会话暂无指令执行记录"}
         
-        k2_percentage = (self.session_stats["k2_local_count"] / total_commands) * 100
+        k2_percentage = (self.session_stats["k2_cloud_count"] / total_commands) * 100
         claude_percentage = ((self.session_stats["claude_mirror_count"] + 
                             self.session_stats["claude_direct_count"]) / total_commands) * 100
         
@@ -186,8 +186,8 @@ class MirrorCodeUsageTracker:
             "session_duration": self._get_session_duration(),
             "total_commands": total_commands,
             "model_distribution": {
-                "k2_local": {
-                    "count": self.session_stats["k2_local_count"],
+                "k2_cloud": {
+                    "count": self.session_stats["k2_cloud_count"],
                     "percentage": round(k2_percentage, 1)
                 },
                 "claude_mirror": {
@@ -294,7 +294,7 @@ class MirrorCodeUsageTracker:
 • 平均响应时间: {summary.get('performance', {}).get('average_response_time_ms', 0)}ms
 
 🤖 **模型使用分布**
-• K2 本地处理: {summary.get('model_distribution', {}).get('k2_local', {}).get('count', 0)} 次 ({summary.get('model_distribution', {}).get('k2_local', {}).get('percentage', 0)}%)
+• K2 云端处理: {summary.get('model_distribution', {}).get('k2_cloud', {}).get('count', 0)} 次 ({summary.get('model_distribution', {}).get('k2_cloud', {}).get('percentage', 0)}%)
 • Claude Mirror: {summary.get('model_distribution', {}).get('claude_mirror', {}).get('count', 0)} 次 ({summary.get('model_distribution', {}).get('claude_mirror', {}).get('percentage', 0)}%)
 • Claude 直接: {summary.get('model_distribution', {}).get('claude_direct', {}).get('count', 0)} 次 ({summary.get('model_distribution', {}).get('claude_direct', {}).get('percentage', 0)}%)
 

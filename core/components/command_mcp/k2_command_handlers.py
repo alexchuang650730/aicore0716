@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 K2 指令处理器 - 实现原本依赖 Claude Code 的指令
-通过 K2 本地模型处理，完全去除 Claude 依赖
+通过 K2 云端模型处理，完全去除 Claude 依赖
 """
 
 import asyncio
@@ -146,7 +146,7 @@ class K2CommandHandlers:
             "type": "user"
         })
         
-        # K2 本地处理聊天
+        # K2 云端处理聊天
         k2_response = await self._process_chat_k2(message)
         
         self.chat_history.append({
@@ -163,7 +163,7 @@ class K2CommandHandlers:
             "chat_history_length": len(self.chat_history),
             "model_info": {
                 "model": "Kimi-K2-Instruct",
-                "provider": "k2_local",
+                "provider": "k2_cloud",
                 "processing": "本地处理，无需网络"
             }
         }
@@ -179,7 +179,7 @@ class K2CommandHandlers:
         
         question = " ".join(args)
         
-        # K2 本地问答处理
+        # K2 云端问答处理
         answer = await self._process_question_k2(question)
         
         return {
@@ -190,7 +190,7 @@ class K2CommandHandlers:
             "project_context": self.project_dirs if self.project_dirs else None,
             "model_info": {
                 "model": "Kimi-K2-Instruct",
-                "provider": "k2_local",
+                "provider": "k2_cloud",
                 "capabilities": ["代码分析", "技术问答", "项目理解"]
             }
         }
@@ -233,7 +233,7 @@ class K2CommandHandlers:
             "review_result": review_result,
             "model_info": {
                 "model": "Kimi-K2-Instruct",
-                "provider": "k2_local",
+                "provider": "k2_cloud",
                 "specialties": ["代码质量分析", "安全审查", "性能优化建议"]
             }
         }
@@ -256,7 +256,7 @@ class K2CommandHandlers:
             "analysis": analysis_result,
             "model_info": {
                 "model": "Kimi-K2-Instruct",
-                "provider": "k2_local",
+                "provider": "k2_cloud",
                 "analysis_types": ["代码结构", "依赖关系", "复杂度分析", "技术栈识别"]
             }
         }
@@ -300,7 +300,7 @@ class K2CommandHandlers:
             ],
             "model_info": {
                 "model": "Kimi-K2-Instruct",
-                "provider": "k2_local",
+                "provider": "k2_cloud",
                 "status": "尝试理解未知指令"
             }
         }

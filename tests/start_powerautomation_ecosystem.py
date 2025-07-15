@@ -211,7 +211,7 @@ class PowerAutomationEcosystem:
                 logger.info(f"     🌐 http://localhost:{config['port']}")
         
         logger.info("\n🌟 核心特性:")
-        logger.info("  🤖 默认模型: K2 本地模型 (免费、快速)")
+        logger.info("  🤖 默认模型: K2 云端模型 (免费、快速)")
         logger.info("  🪞 Mirror Code: 已集成到 Command MCP")
         logger.info("  🔄 智能路由: K2 优先，Claude Code 备用")
         logger.info("  📱 ClaudeEditor: 跨平台 AI 代码编辑器")
@@ -222,7 +222,7 @@ class PowerAutomationEcosystem:
         
         logger.info("\n💡 使用提示:")
         logger.info("  - 在 ClaudeEditor 中使用 /help 查看所有指令")
-        logger.info("  - 默认使用 K2 本地模型，无需 API 费用")
+        logger.info("  - 默认使用 K2 云端模型，无需 API 费用")
         logger.info("  - 使用 /switch-model claude 切换到 Claude Code")
         logger.info("  - 按 Ctrl+C 停止所有服务")
         

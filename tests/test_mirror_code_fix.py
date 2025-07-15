@@ -75,7 +75,7 @@ class MirrorCodeFixTest:
                     assert hasattr(decision, 'reason'), "路由决策缺少原因"
                     
                     # 验证是否路由到K2
-                    is_k2_routed = decision.target_model.value == "k2_local"
+                    is_k2_routed = decision.target_model.value == "k2_cloud"
                     
                     self.record_test(
                         f"路由指令: {cmd}",
@@ -216,7 +216,7 @@ class MirrorCodeFixTest:
             usage_tracker.session_stats = {
                 "session_start": datetime.now().isoformat(),
                 "total_commands": 0,
-                "k2_local_count": 0,
+                "k2_cloud_count": 0,
                 "claude_mirror_count": 0,
                 "claude_direct_count": 0,
                 "total_cost_usd": 0.0,
@@ -246,7 +246,7 @@ class MirrorCodeFixTest:
             summary = get_current_usage_summary()
             
             if isinstance(summary, dict) and "model_distribution" in summary:
-                k2_percentage = summary["model_distribution"].get("k2_local", {}).get("percentage", 0)
+                k2_percentage = summary["model_distribution"].get("k2_cloud", {}).get("percentage", 0)
                 claude_percentage = (
                     summary["model_distribution"].get("claude_mirror", {}).get("percentage", 0) +
                     summary["model_distribution"].get("claude_direct", {}).get("percentage", 0)
@@ -333,7 +333,7 @@ class MirrorCodeFixTest:
             print("\n🎉 所有测试通过！Mirror Code 修复成功！")
             print("✅ Claude Code 依赖已成功去除")
             print("✅ K2 智能路由正常工作")
-            print("✅ 系统完全使用 K2 本地模型")
+            print("✅ 系统完全使用 K2 云端模型")
         else:
             print(f"\n⚠️ 有 {self.failed_tests} 个测试失败，需要进一步修复")
             print("请检查失败的测试项目并进行修复")

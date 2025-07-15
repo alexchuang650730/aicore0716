@@ -1,6 +1,6 @@
 # PowerAutomation v4.6.9.5
 
-🚀 **AI-Powered Code Editor with K2 Local Model & Mirror Code Intelligence**
+🚀 **AI-Powered Code Editor with K2 Dual Provider & Mirror Code Intelligence**
 
 ## Quick Start
 
@@ -18,7 +18,7 @@ cd claudeditor && npm start
 
 ## Features
 
-- 🤖 **K2 Local Model** - Default AI model, completely free and offline
+- 🤖 **K2 Dual Provider** - Smart routing between Infini-AI Cloud and Moonshot Official
 - 🪞 **Mirror Code** - Intelligent routing between K2 and Claude Code
 - 📡 **Command MCP** - Unified command interface with 19+ supported commands
 - 🔄 **Task Sync** - Real-time synchronization between ClaudeEditor and Claude Code
