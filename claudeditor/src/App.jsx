@@ -1,172 +1,206 @@
-import React, { useState, useEffect } from 'react'
-import MonacoEditor from './editor/MonacoEditor'
-import FileExplorer from './components/FileExplorer'
-import TaskList from './components/TaskList'
-import AIAssistant from './ai-assistant/AIAssistant'
-import ToolManager from './components/ToolManager'
-import powerAutomationService from './services/PowerAutomationService'
-import './App.css'
+import React, { useEffect, useState } from 'react';
+import './App.css';
+import './styles/SmartUI.css';
+import FileExplorer from './components/FileExplorer';
+import TaskList from './components/TaskList';
+import AIAssistant from './ai-assistant/AIAssistant';
+import ToolManager from './components/ToolManager';
+import MonacoEditor from './editor/MonacoEditor';
+import PowerAutomationService from './services/PowerAutomationService';
+import SmartUIService from './services/SmartUIService';
 
 function App() {
-  const [currentFile, setCurrentFile] = useState(null)
-  const [fileContent, setFileContent] = useState('')
-  const [selectedTask, setSelectedTask] = useState(null)
-  const [activeLeftPanel, setActiveLeftPanel] = useState('tasks') // 'tasks', 'files'
-  const [powerAutomationStatus, setPowerAutomationStatus] = useState('initializing')
+  const [currentFile, setCurrentFile] = useState(null);
+  const [fileContent, setFileContent] = useState('');
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [activeLeftPanel, setActiveLeftPanel] = useState('tasks');
+  const [powerAutomationStatus, setPowerAutomationStatus] = useState('initializing');
+  const [smartUIConfig, setSmartUIConfig] = useState(null);
+  const [deviceType, setDeviceType] = useState('desktop');
+
+  // SmartUI 初始化
+  useEffect(() => {
+    const initializeSmartUI = async () => {
+      try {
+        console.log('🎨 初始化 SmartUI 系统...');
+        
+        // SmartUI 服务会自动初始化
+        const unsubscribe = window.smartUIService?.subscribe((event, data) => {
+          if (event === 'config_applied') {
+            setSmartUIConfig(data);
+            setDeviceType(data.device_type);
+            console.log('📱 SmartUI 配置已应用:', data);
+          } else if (event === 'device_change') {
+            console.log('📱 设备类型变化:', data);
+            setDeviceType(data.newDeviceType);
+          }
+        });
+        
+        // 获取初始配置
+        if (window.smartUIService?.isInitialized) {
+          const config = window.smartUIService.getCurrentConfig();
+          if (config) {
+            setSmartUIConfig(config);
+            setDeviceType(config.device_type);
+          }
+        }
+        
+        return unsubscribe;
+        
+      } catch (error) {
+        console.error('❌ SmartUI 初始化失败:', error);
+      }
+    };
+
+    const cleanup = initializeSmartUI();
+    
+    return () => {
+      if (cleanup && typeof cleanup === 'function') {
+        cleanup();
+      }
+    };
+  }, []);
 
   // PowerAutomation 服务初始化
   useEffect(() => {
     const initializePowerAutomation = async () => {
       try {
-        console.log('🚀 ClaudeEditor 启动，初始化 PowerAutomation...')
+        console.log('🚀 ClaudeEditor 启动，初始化 PowerAutomation...');
         
         // 启动 PowerAutomation 服务
-        await powerAutomationService.initialize()
+        await PowerAutomationService.initialize();
         
-        setPowerAutomationStatus('ready')
-        console.log('✅ PowerAutomation 服务已就绪')
+        setPowerAutomationStatus('ready');
+        console.log('✅ PowerAutomation 服务已就绪');
         
       } catch (error) {
-        console.error('❌ PowerAutomation 初始化失败:', error)
-        setPowerAutomationStatus('error')
+        console.error('❌ PowerAutomation 初始化失败:', error);
+        setPowerAutomationStatus('error');
       }
-    }
+    };
 
-    initializePowerAutomation()
+    initializePowerAutomation();
 
     // 监听 PowerAutomation 就绪事件
     const handlePowerAutomationReady = (event) => {
-      console.log('🎉 PowerAutomation 就绪事件:', event.detail)
-      setPowerAutomationStatus('ready')
-    }
+      console.log('🎉 PowerAutomation 就绪事件:', event.detail);
+      setPowerAutomationStatus('ready');
+    };
 
-    window.addEventListener('powerautomation:ready', handlePowerAutomationReady)
+    window.addEventListener('powerautomation:ready', handlePowerAutomationReady);
 
     return () => {
-      window.removeEventListener('powerautomation:ready', handlePowerAutomationReady)
-    }
-  }, [])
+      window.removeEventListener('powerautomation:ready', handlePowerAutomationReady);
+    };
+  }, []);
 
   const handleFileSelect = (file, content) => {
-    setCurrentFile(file)
-    setFileContent(content)
-  }
+    setCurrentFile(file);
+    setFileContent(content);
+  };
 
   const handleFileContentChange = (newContent) => {
-    setFileContent(newContent)
-  }
+    setFileContent(newContent);
+  };
 
   const handleProjectOpen = (projectPath) => {
-    console.log('Opening project:', projectPath)
-    // 可以在這裡添加項目打開邏輯
-  }
+    console.log('Opening project:', projectPath);
+  };
 
   const handleTaskSelect = (task) => {
-    setSelectedTask(task)
-    console.log('Selected task:', task)
+    setSelectedTask(task);
+    console.log('Selected task:', task);
     
-    // 处理不同类型的任务选择
     if (task && task.type) {
       switch (task.type) {
         case 'open_file':
-          // 打开文件请求
-          console.log('Opening file from task:', task.filePath)
-          // 这里可以触发文件打开逻辑
+          console.log('Opening file from task:', task.filePath);
           break;
-        
         case 'edit_code':
-          // 代码编辑请求
-          console.log('Edit code request:', task.changes)
-          // 这里可以应用代码更改
+          console.log('Edit code request:', task.changes);
           break;
-        
         case 'show_diff':
-          // 显示差异请求
-          console.log('Show diff request:', task.before, task.after)
-          // 这里可以显示差异视图
+          console.log('Show diff request:', task.before, task.after);
           break;
-        
         default:
-          // 普通任务选择
           break;
       }
     }
-  }
+  };
 
   const handleAgentAssign = (taskId, agentId) => {
-    console.log('Agent assigned:', { taskId, agentId })
-    // 这里可以处理智能体分配逻辑
-  }
+    console.log('Agent assigned:', { taskId, agentId });
+  };
+
+  // 根据设备类型决定是否显示侧边栏
+  const shouldShowSidebar = () => {
+    return window.smartUIService?.shouldShowSidebar() !== false;
+  };
+
+  // 根据设备类型决定布局
+  const getLayoutClass = () => {
+    if (!smartUIConfig) return '';
+    return `columns-${smartUIConfig.layout_columns}`;
+  };
 
   return (
-    <div className="app">
+    <div className={`app ${getLayoutClass()}`}>
       <header className="app-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: '20px' }}>ClaudeEditor</h1>
-            <p style={{ margin: '2px 0 0 0', fontSize: '12px', opacity: 0.8 }}>
-              AI-Powered Code Editor with PowerAutomation v4.6.9.5
+            <h1>ClaudeEditor</h1>
+            <p>
+              AI-Powered Code Editor with SmartUI v4.6.9.6
+              {smartUIConfig && (
+                <span style={{ marginLeft: '10px', opacity: 0.7 }}>
+                  📱 {deviceType} | {smartUIConfig.breakpoint}
+                </span>
+              )}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
             <button
               onClick={() => setActiveLeftPanel('tasks')}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: activeLeftPanel === 'tasks' ? '#1e3a8a' : 'transparent',
-                color: activeLeftPanel === 'tasks' ? 'white' : '#1e3a8a',
-                border: '1px solid #1e3a8a',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '12px'
-              }}
+              className={`btn ${activeLeftPanel === 'tasks' ? 'btn-primary' : 'btn-secondary'}`}
             >
               🎯 任务管理
             </button>
-            <button
-              onClick={() => setActiveLeftPanel('files')}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: activeLeftPanel === 'files' ? '#1e3a8a' : 'transparent',
-                color: activeLeftPanel === 'files' ? 'white' : '#1e3a8a',
-                border: '1px solid #1e3a8a',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '12px'
-              }}
-            >
-              📁 文件浏览
-            </button>
+            {/* 在移动端隐藏文件浏览按钮 */}
+            {deviceType !== 'mobile' && (
+              <button
+                onClick={() => setActiveLeftPanel('files')}
+                className={`btn ${activeLeftPanel === 'files' ? 'btn-primary' : 'btn-secondary'}`}
+              >
+                📁 文件浏览
+              </button>
+            )}
           </div>
         </div>
       </header>
       
-      <div className="app-content" style={{ display: 'flex', height: 'calc(100vh - 80px)' }}>
-        {/* Left Panel */}
-        <div style={{ display: 'flex' }}>
-          {activeLeftPanel === 'tasks' && (
+      <div className="app-content">
+        {/* File Explorer Section - 在移动端和平板隐藏 */}
+        {activeLeftPanel === 'files' && deviceType !== 'mobile' && deviceType !== 'tablet' && (
+          <div className="file-explorer-section">
+            <FileExplorer 
+              onFileSelect={handleFileSelect}
+              onProjectOpen={handleProjectOpen}
+            />
+          </div>
+        )}
+        
+        {/* Task List Section - 在移动端显示为全宽 */}
+        {activeLeftPanel === 'tasks' && (
+          <div className="file-explorer-section">
             <TaskList 
               onTaskSelect={handleTaskSelect}
               onAgentAssign={handleAgentAssign}
             />
-          )}
-          {activeLeftPanel === 'files' && (
-            <div style={{ width: '350px' }}>
-              <FileExplorer 
-                onFileSelect={handleFileSelect}
-                onProjectOpen={handleProjectOpen}
-              />
-            </div>
-          )}
-        </div>
+          </div>
+        )}
         
         {/* Main Editor Area */}
-        <div style={{ 
-          flex: 1, 
-          display: 'flex', 
-          flexDirection: 'column',
-          minWidth: 0 // 防止 flex 子元素溢出
-        }}>
+        <div className="editor-section">
           {/* Task Info Bar */}
           {selectedTask && (
             <div style={{
@@ -207,39 +241,79 @@ function App() {
           )}
           
           {/* Monaco Editor */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, height: '100%' }}>
             <MonacoEditor 
               currentFile={currentFile}
               fileContent={fileContent}
               onFileContentChange={handleFileContentChange}
-              selectedTask={selectedTask} // 传递选中的任务给编辑器
+              selectedTask={selectedTask}
             />
           </div>
         </div>
         
-        {/* Right Sidebar */}
-        <div style={{ 
-          width: '300px', 
-          backgroundColor: '#f8f9fa',
-          borderLeft: '1px solid #e9ecef',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <div style={{ flex: 1 }}>
-            <AIAssistant selectedTask={selectedTask} />
+        {/* Right Sidebar - 根据设备类型显示/隐藏 */}
+        {shouldShowSidebar() && (
+          <div className="sidebar">
+            <div style={{ flex: 1 }}>
+              <AIAssistant selectedTask={selectedTask} />
+            </div>
+            <div style={{ 
+              borderTop: '1px solid #e9ecef',
+              maxHeight: deviceType === 'mobile' ? '150px' : '200px',
+              overflowY: 'auto'
+            }}>
+              <ToolManager />
+            </div>
           </div>
-          <div style={{ 
-            borderTop: '1px solid #e9ecef',
-            maxHeight: '200px',
-            overflowY: 'auto'
-          }}>
-            <ToolManager />
-          </div>
-        </div>
+        )}
       </div>
+      
+      {/* 移动端底部导航 */}
+      {deviceType === 'mobile' && (
+        <div style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '60px',
+          backgroundColor: 'white',
+          borderTop: '1px solid #e9ecef',
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          zIndex: 100
+        }}>
+          <button
+            onClick={() => setActiveLeftPanel('tasks')}
+            className={`btn ${activeLeftPanel === 'tasks' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ fontSize: '12px', padding: '8px 12px' }}
+          >
+            🎯 任务
+          </button>
+          <button
+            onClick={() => setActiveLeftPanel('files')}
+            className={`btn ${activeLeftPanel === 'files' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ fontSize: '12px', padding: '8px 12px' }}
+          >
+            📁 文件
+          </button>
+          <button
+            className="btn btn-secondary"
+            style={{ fontSize: '12px', padding: '8px 12px' }}
+          >
+            🤖 AI
+          </button>
+          <button
+            className="btn btn-secondary"
+            style={{ fontSize: '12px', padding: '8px 12px' }}
+          >
+            🛠️ 工具
+          </button>
+        </div>
+      )}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
 
