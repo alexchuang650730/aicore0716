@@ -145,7 +145,7 @@ class MCPDiscoveryService {
         endpoint: 'http://localhost:8010/coordinator'
       },
       {
-        id: 'claude_router_mcp',
+        id: 'startup_trigger_mcp',
         name: 'Startup Trigger MCP',
         type: 'infrastructure',
         status: 'active',
