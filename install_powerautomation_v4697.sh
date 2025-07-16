@@ -67,10 +67,67 @@ check_dependencies() {
 install_python_dependencies() {
     print_message $BLUE "📦 安装 Python 依赖包..."
     
-    # 安装必要的 Python 包
-    pip3 install --user asyncio websockets httpx aiofiles || {
-        print_message $YELLOW "⚠️ 部分依赖包安装失败，但继续安装..."
-    }
+    # 检测操作系统
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS 系统 - 使用虚拟环境
+        print_message $BLUE "🍎 检测到 macOS 系统，创建虚拟环境..."
+        
+        # 创建虚拟环境
+        if [ ! -d "$INSTALL_DIR/powerautomation_env" ]; then
+            print_message $BLUE "🔧 创建 Python 虚拟环境..."
+            python3 -m venv "$INSTALL_DIR/powerautomation_env" || {
+                print_message $RED "❌ 虚拟环境创建失败"
+                exit 1
+            }
+        fi
+        
+        # 激活虚拟环境
+        source "$INSTALL_DIR/powerautomation_env/bin/activate"
+        
+        # 升级 pip
+        python -m pip install --upgrade pip
+        
+        # 安装依赖
+        python -m pip install httpx websockets aiofiles requests beautifulsoup4 lxml || {
+            print_message $YELLOW "⚠️ 部分依赖包安装失败，但继续安装..."
+        }
+        
+        # 创建激活脚本
+        cat > "$INSTALL_DIR/activate_env.sh" << 'EOF'
+#!/bin/bash
+# PowerAutomation 虚拟环境激活脚本
+source "$HOME/.powerautomation/powerautomation_env/bin/activate"
+echo "✅ PowerAutomation 虚拟环境已激活"
+EOF
+        chmod +x "$INSTALL_DIR/activate_env.sh"
+        
+        print_message $GREEN "✅ macOS 虚拟环境配置完成"
+        
+    else
+        # Linux 系统 - 尝试系统安装，失败则使用虚拟环境
+        print_message $BLUE "🐧 检测到 Linux 系统..."
+        
+        # 尝试直接安装
+        if pip3 install --user httpx websockets aiofiles requests beautifulsoup4 lxml 2>/dev/null; then
+            print_message $GREEN "✅ 系统级安装成功"
+        else
+            # 回退到虚拟环境
+            print_message $BLUE "🔧 系统级安装失败，使用虚拟环境..."
+            python3 -m venv "$INSTALL_DIR/powerautomation_env"
+            source "$INSTALL_DIR/powerautomation_env/bin/activate"
+            python -m pip install --upgrade pip
+            python -m pip install httpx websockets aiofiles requests beautifulsoup4 lxml
+            
+            # 创建激活脚本
+            cat > "$INSTALL_DIR/activate_env.sh" << 'EOF'
+#!/bin/bash
+# PowerAutomation 虚拟环境激活脚本
+source "$HOME/.powerautomation/powerautomation_env/bin/activate"
+echo "✅ PowerAutomation 虚拟环境已激活"
+EOF
+            chmod +x "$INSTALL_DIR/activate_env.sh"
+        fi
+    fi
     
     print_message $GREEN "✅ Python 依赖包安装完成"
 }
@@ -183,20 +240,47 @@ case "$1" in
         echo ""
         echo "示例:"
         echo "  powerautomation start"
-        echo "  powerautomation status"
-        echo "  powerautomation tool-mode --action enable"
-        ;;
-esac
+    # 创建启动脚本
+    cat > "$INSTALL_DIR/powerautomation" << 'EOF'
+#!/bin/bash
+# PowerAutomation 启动脚本
+
+# PowerAutomation 安装目录
+POWERAUTOMATION_DIR="$HOME/.powerautomation"
+VENV_DIR="$POWERAUTOMATION_DIR/powerautomation_env"
+AICORE_DIR="$POWERAUTOMATION_DIR/aicore0716"
+
+# 激活虚拟环境（如果存在）
+if [ -d "$VENV_DIR" ]; then
+    source "$VENV_DIR/bin/activate"
+fi
+
+# 切换到工作目录
+cd "$AICORE_DIR"
+
+# 运行 PowerAutomation
+node bin/powerautomation.js "$@"
 EOF
     
-    # 设置执行权限
-    chmod +x "$HOME/.powerautomation/powerautomation"
+    chmod +x "$INSTALL_DIR/powerautomation"
     
     # 添加到 PATH
-    if ! grep -q "powerautomation" "$HOME/.bashrc" 2>/dev/null; then
-        echo 'export PATH="$HOME/.powerautomation:$PATH"' >> "$HOME/.bashrc"
-        print_message $GREEN "✅ 已添加 powerautomation 到 PATH"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        if ! grep -q "powerautomation" ~/.zshrc 2>/dev/null; then
+            echo 'export PATH="$HOME/.powerautomation:$PATH"' >> ~/.zshrc
+        fi
+        if ! grep -q "powerautomation" ~/.bash_profile 2>/dev/null; then
+            echo 'export PATH="$HOME/.powerautomation:$PATH"' >> ~/.bash_profile
+        fi
+    else
+        # Linux
+        if ! grep -q "powerautomation" ~/.bashrc 2>/dev/null; then
+            echo 'export PATH="$HOME/.powerautomation:$PATH"' >> ~/.bashrc
+        fi
     fi
+    
+    print_message $GREEN "✅ 已添加 powerautomation 到 PATH"
     
     # 为当前会话设置 PATH
     export PATH="$HOME/.powerautomation:$PATH"
