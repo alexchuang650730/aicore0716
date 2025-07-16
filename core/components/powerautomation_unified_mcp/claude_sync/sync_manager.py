@@ -7,8 +7,7 @@ Claude Code Sync Manager - Claude Code 同步管理器
 import asyncio
 import json
 import logging
-from typing import Dict, Any, Optional, Callable
-import aiofiles
+from typing import Dict, Any, Optional, Callable, List
 import httpx
 from dataclasses import dataclass, asdict
 from datetime import datetime
@@ -22,6 +21,13 @@ try:
 except ImportError:
     WEBSOCKETS_AVAILABLE = False
     websockets = None
+
+try:
+    import aiofiles
+    AIOFILES_AVAILABLE = True
+except ImportError:
+    AIOFILES_AVAILABLE = False
+    aiofiles = None
 
 logger = logging.getLogger(__name__)
 
@@ -164,18 +170,6 @@ class ClaudeSyncManager:
             
         except Exception as e:
             logger.warning(f"WebSocket 连接失败: {e}")
-            return False
-                
-            except Exception as ws_error:
-                self.logger.warning(f"WebSocket 连接失败: {ws_error}")
-                
-                # 回退到 HTTP 模式
-                await self._setup_http_fallback()
-                return True
-                
-        except Exception as e:
-            self.status = SyncStatus.ERROR
-            self.logger.error(f"❌ 连接 ClaudeEditor 失败: {e}")
             return False
     
     async def _setup_http_fallback(self):
