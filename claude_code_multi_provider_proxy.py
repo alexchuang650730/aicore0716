@@ -37,11 +37,13 @@ class MultiProviderClaudeProxy:
                 "is_hf": True  # 特殊标记，因为 HF API 格式不同
             },
             {
-                "name": "Novia",
-                "endpoint": "https://api.novia.ai/v1",
-                "api_key": os.getenv("NOVIA_API_KEY", ""),
-                "model": "novia-chat",
-                "priority": 3
+                "name": "Novita-via-HF",
+                "endpoint": "https://api-inference.huggingface.co/models/moonshotai/Kimi-K2-Instruct",
+                "api_key": os.getenv("HF_TOKEN", ""),
+                "model": "moonshotai/Kimi-K2-Instruct",
+                "priority": 3,
+                "is_hf_novita": True,  # 特殊标记，使用 HF Hub + Novita
+                "provider": "novita"
             },
             {
                 "name": "DeepSeek",
@@ -268,16 +270,29 @@ class MultiProviderClaudeProxy:
                 logger.info(f"📡 尝试 K2 Provider {i+1}/{len(self.active_providers)}: {provider['name']}")
                 
                 # 检查是否是 HuggingFace API
-                if provider.get("is_hf", False):
+                if provider.get("is_hf", False) or provider.get("is_hf_novita", False):
                     # HuggingFace Inference API 格式
-                    hf_data = {
-                        "inputs": user_content,
-                        "parameters": {
-                            "max_new_tokens": 200,
-                            "temperature": 0.7,
-                            "return_full_text": False
+                    if provider.get("is_hf_novita", False):
+                        # 使用 HuggingFace Hub + Novita provider 的格式
+                        hf_data = {
+                            "inputs": user_content,
+                            "parameters": {
+                                "max_new_tokens": 200,
+                                "temperature": 0.7,
+                                "return_full_text": False,
+                                "provider": provider.get("provider", "novita")
+                            }
                         }
-                    }
+                    else:
+                        # 标准 HuggingFace Inference API
+                        hf_data = {
+                            "inputs": user_content,
+                            "parameters": {
+                                "max_new_tokens": 200,
+                                "temperature": 0.7,
+                                "return_full_text": False
+                            }
+                        }
                     
                     async with ClientSession() as session:
                         headers = {
@@ -296,6 +311,11 @@ class MultiProviderClaudeProxy:
                                 hf_response = await response.json()
                                 if isinstance(hf_response, list) and hf_response:
                                     content = hf_response[0].get("generated_text", f"Hello from {provider['name']}!")
+                                elif isinstance(hf_response, dict):
+                                    # 处理可能的不同响应格式
+                                    content = hf_response.get("generated_text", 
+                                             hf_response.get("text", 
+                                             hf_response.get("content", f"Hello from {provider['name']}!")))
                                 else:
                                     content = f"Hello from {provider['name']}!"
                                 
@@ -415,15 +435,14 @@ async def main():
     print("🌐 支持的 K2 服务提供商:")
     print("   1. Infini-AI (需要 INFINI_AI_API_KEY)")
     print("   2. HuggingFace (需要 HF_TOKEN)")
-    print("   3. Novia (需要 NOVIA_API_KEY)")
+    print("   3. Novita via HuggingFace Hub (需要 HF_TOKEN)")
     print("   4. DeepSeek (需要 DEEPSEEK_API_KEY)")
     print("   5. Qwen (需要 QWEN_API_KEY)")
     print("   6. Local Ollama (本地服务)")
     print("")
     print("🔑 环境变量配置:")
     print("   export INFINI_AI_API_KEY='your-infini-ai-key'")
-    print("   export HF_TOKEN='your-huggingface-token'")
-    print("   export NOVIA_API_KEY='your-novia-key'")
+    print("   export HF_TOKEN='your-huggingface-token'  # 支持 HF + Novita")
     print("   export DEEPSEEK_API_KEY='your-deepseek-key'")
     print("   export QWEN_API_KEY='your-qwen-key'")
     print("   export ANTHROPIC_API_KEY='your-claude-key'")
