@@ -16,12 +16,17 @@ except ImportError as e:
     print(f"Warning: Could not import project_analyzer_mcp: {e}")
     project_analyzer = None
 
+try:
+    from .monitoring_mcp.monitoring_manager import monitoring_manager as monitoring_mcp
+except ImportError as e:
+    print(f"Warning: Could not import monitoring_mcp: {e}")
+    monitoring_mcp = None
+
 # 模擬其他MCP組件
 workflow_automation_mcp = type('MockMCP', (), {'status': 'available'})()
 code_review_mcp = type('MockMCP', (), {'status': 'available'})()
 test_generator_mcp = type('MockMCP', (), {'status': 'available'})()
 deployment_mcp = type('MockMCP', (), {'status': 'available'})()
-monitoring_mcp = type('MockMCP', (), {'status': 'available'})()
 collaboration_mcp = type('MockMCP', (), {'status': 'available'})()
 
 __all__ = [

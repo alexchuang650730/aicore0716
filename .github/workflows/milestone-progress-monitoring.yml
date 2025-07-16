@@ -51,8 +51,8 @@ jobs:
     
     - name: Create Monitoring Configuration
       run: |
-        mkdir -p core/monitoring/config
-        cat > core/monitoring/config/monitoring_config.yaml << EOF
+        mkdir -p core/components/monitoring_mcp/config
+        cat > core/components/monitoring_mcp/config/monitoring_config.yaml << EOF
         monitoring:
           check_interval_hours: 6
           report_interval_hours: 24
@@ -68,8 +68,8 @@ jobs:
             - ${{ secrets.NOTIFICATION_EMAIL }}
             
         milestones:
-          data_file: 'core/monitoring/data/milestones_data.json'
-          backup_dir: 'core/monitoring/backups'
+          data_file: 'core/components/monitoring_mcp/data/milestones_data.json'
+          backup_dir: 'core/components/monitoring_mcp/backups'
           
         quality_gates:
           min_test_coverage: 80
@@ -80,15 +80,15 @@ jobs:
     
     - name: Initialize Monitoring Data Directory
       run: |
-        mkdir -p core/monitoring/data
-        mkdir -p core/monitoring/backups
-        mkdir -p core/monitoring/logs
-        mkdir -p core/monitoring/reports
+        mkdir -p core/components/monitoring_mcp/data
+        mkdir -p core/components/monitoring_mcp/backups
+        mkdir -p core/components/monitoring_mcp/logs
+        mkdir -p core/components/monitoring_mcp/reports
     
     - name: Update Task Progress (if specified)
       if: github.event.inputs.update_task_progress != ''
       run: |
-        cd core/monitoring
+        cd core/components/monitoring_mcp
         python << EOF
         import asyncio
         import sys
@@ -118,7 +118,7 @@ jobs:
     - name: Run Milestone Progress Analysis
       id: analysis
       run: |
-        cd core/monitoring
+        cd core/components/monitoring_mcp
         python << EOF
         import asyncio
         import json
@@ -171,7 +171,7 @@ jobs:
     - name: Quality Gate Check
       id: quality_gate
       run: |
-        cd core/monitoring
+        cd core/components/monitoring_mcp
         python << EOF
         import json
         import os
@@ -226,7 +226,7 @@ jobs:
     - name: Update Milestone Status Based on Quality Gate
       if: steps.quality_gate.outputs.quality_gate_passed == 'false'
       run: |
-        cd core/monitoring
+        cd core/components/monitoring_mcp
         python << EOF
         import asyncio
         from milestone_progress_monitor import MilestoneProgressMonitor
@@ -287,7 +287,7 @@ jobs:
           
           ### 📄 相關文件
           - 詳細報告: ${{ steps.analysis.outputs.report_file }}
-          - 監控配置: core/monitoring/config/monitoring_config.yaml
+          - 監控配置: core/components/monitoring_mcp/config/monitoring_config.yaml
           
           **自動生成 by PowerAutomation Monitoring System**
           `;
@@ -320,8 +320,8 @@ jobs:
       with:
         name: milestone-monitoring-reports-${{ github.run_number }}
         path: |
-          core/monitoring/reports/
-          core/monitoring/logs/
+          core/components/monitoring_mcp/reports/
+          core/components/monitoring_mcp/logs/
         retention-days: 30
     
     - name: Post Summary to Pull Request
@@ -373,7 +373,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         
-        git add core/monitoring/data/
+        git add core/components/monitoring_mcp/data/
         git add .github/monitoring/status.json
         
         if ! git diff --staged --quiet; then
