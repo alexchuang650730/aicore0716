@@ -288,7 +288,7 @@ interface GlobalState {
 ```bash
 # 启动 PowerAutomation
 cd /home/ubuntu/aicore0716
-./auto_setup_claudeeditor.sh
+./claudeditor/scripts/auto_setup_claudeeditor.sh
 
 # 启动 ClaudeEditor
 npm start

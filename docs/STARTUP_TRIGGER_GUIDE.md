@@ -76,7 +76,7 @@ python3 -m core.components.startup_trigger_mcp.startup_trigger_manager --action 
 ### 方法三：自动安装脚本
 ```bash
 # 直接运行自动安装脚本
-bash auto_setup_claudeeditor.sh
+bash claudeditor/scripts/auto_setup_claudeeditor.sh
 ```
 
 ## 🔧 配置选项
@@ -140,7 +140,7 @@ python3 tests/test_startup_trigger.py
 curl -I https://github.com/alexchuang650730/aicore0716.git
 
 # 手动运行安装脚本
-bash auto_setup_claudeeditor.sh
+bash claudeditor/scripts/auto_setup_claudeeditor.sh
 
 # 检查日志
 tail -f /tmp/claudeeditor.log
@@ -169,7 +169,7 @@ cat /tmp/claude_code_ready
 
 # 重启 ClaudeEditor
 pkill -f "vite.*5176"
-bash auto_setup_claudeeditor.sh
+bash claudeditor/scripts/auto_setup_claudeeditor.sh
 ```
 
 ### 日志文件位置

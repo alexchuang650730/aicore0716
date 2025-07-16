@@ -22,7 +22,7 @@
     "integration_files": {
       "claude_code_final_proxy.py": true,
       "one_click_install.sh": true,
-      "claude_code_memoryos_integration.py": true
+      "claudeditor/integration/claude_code_memoryos_integration.py": true
     }
   },
   "claude_code_capabilities": {

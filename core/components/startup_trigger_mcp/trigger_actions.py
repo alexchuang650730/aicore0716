@@ -208,7 +208,7 @@ class TriggerActionExecutor:
             
             # 执行安装脚本
             action_result.logs.append("执行自动安装脚本...")
-            script_path = "/home/ubuntu/aicore0716/auto_setup_claudeeditor.sh"
+            script_path = "/home/ubuntu/aicore0716/claudeditor/scripts/auto_setup_claudeeditor.sh"
             
             if not os.path.exists(script_path):
                 # 如果脚本不存在，先克隆仓库

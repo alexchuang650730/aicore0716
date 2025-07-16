@@ -1,7 +1,7 @@
 {
   "name": "powerautomation-unified",
   "version": "4.6.97",
-  "description": "PowerAutomation v4.6.97 - 革命性 Claude Code 代理解决方案。基于 Groq + Together AI 的高性能 K2 路由，完全避免 Claude 余额消耗，保留所有工具功能。一键安装，零配置，0.36s 快速响应。",
+  "description": "PowerAutomation v4.6.97 - 业界领先的个人/企业工作流自动化解决方案。六大工作流 + Local Manus 多模型集成 + SmartUI 开发自动化。零成本运行，0.36s 响应，一键安装。",
   "main": "core/components/claude_router_mcp/unified_mcp_server.py",
   "bin": {
     "powerautomation": "./bin/powerautomation.js"
@@ -17,25 +17,25 @@
   },
   "keywords": [
     "powerautomation",
+    "workflow-automation",
+    "industry-leading",
+    "enterprise-solution",
+    "six-workflows",
+    "local-manus",
+    "multi-model-integration",
+    "smartui",
+    "development-automation",
     "claude-code",
-    "groq",
-    "together-ai",
-    "k2-routing",
+    "kimi-k2",
+    "claudeditor",
     "zero-cost",
     "high-performance",
     "one-click-install",
     "ai-proxy",
-    "claude-api",
-    "cost-optimization",
     "intelligent-routing",
     "mcp",
     "automation",
-    "ai-development",
-    "huggingface",
-    "inference-api",
-    "claude-tools",
-    "startup-trigger",
-    "mirror-code"
+    "ai-development"
   ],
   "author": {
     "name": "PowerAutomation Team",

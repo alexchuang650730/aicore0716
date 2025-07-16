@@ -35,7 +35,7 @@ def validate_file_structure():
         "integration_files": [
             "claude_code_final_proxy.py",
             "one_click_install.sh",
-            "claude_code_memoryos_integration.py"
+            "claudeditor/integration/claude_code_memoryos_integration.py"
         ]
     }
     
@@ -60,7 +60,7 @@ def validate_claude_code_capabilities():
     capabilities = {
         "代理服务": Path("claude_code_final_proxy.py").exists(),
         "一键安装": Path("one_click_install.sh").exists(),
-        "内存集成": Path("claude_code_memoryos_integration.py").exists(),
+        "内存集成": Path("claudeditor/integration/claude_code_memoryos_integration.py").exists(),
         "工具模式": Path("core/components/claude_router_mcp/tool_mode/tool_manager.py").exists(),
         "K2路由": Path("core/components/claude_router_mcp/k2_router/k2_client.py").exists()
     }
