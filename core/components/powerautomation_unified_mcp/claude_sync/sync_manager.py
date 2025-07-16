@@ -7,13 +7,21 @@ Claude Code Sync Manager - Claude Code 同步管理器
 import asyncio
 import json
 import logging
-import time
-import websockets
-from typing import Dict, List, Any, Optional, Callable
+from typing import Dict, Any, Optional, Callable
+import aiofiles
+import httpx
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
 import uuid
+
+# 可选依赖处理
+try:
+    import websockets
+    WEBSOCKETS_AVAILABLE = True
+except ImportError:
+    WEBSOCKETS_AVAILABLE = False
+    websockets = None
 
 logger = logging.getLogger(__name__)
 
@@ -133,27 +141,30 @@ class ClaudeSyncManager:
         self.heartbeat_task = asyncio.create_task(self._heartbeat_monitor())
         
         self.logger.info("🚀 Claude Code 同步服务已启动")
-    
-    async def connect_to_claudeditor(self) -> bool:
-        """连接到 ClaudeEditor"""
-        try:
-            self.status = SyncStatus.CONNECTING
-            self.logger.info(f"🔗 连接到 ClaudeEditor: {self.claudeditor_url}")
+        
+    async def _connect_websocket(self) -> bool:
+        """连接到 ClaudeEditor WebSocket"""
+        if not WEBSOCKETS_AVAILABLE:
+            logger.warning("WebSocket 依赖不可用，跳过 WebSocket 连接")
+            return False
             
-            # 尝试 WebSocket 连接
-            try:
-                self.websocket = await websockets.connect(
-                    self.claudeditor_url,
-                    timeout=10
-                )
-                
-                self.status = SyncStatus.CONNECTED
-                self.logger.info("✅ ClaudeEditor WebSocket 连接成功")
-                
-                # 启动消息监听
-                asyncio.create_task(self._message_listener())
-                
-                return True
+        try:
+            logger.info(f"🔗 连接到 ClaudeEditor: {self.websocket_url}")
+            
+            # 使用 websockets 连接
+            self.websocket = await websockets.connect(
+                self.websocket_url,
+                ping_interval=30,
+                ping_timeout=10,
+                close_timeout=10
+            )
+            
+            logger.info("✅ WebSocket 连接成功")
+            return True
+            
+        except Exception as e:
+            logger.warning(f"WebSocket 连接失败: {e}")
+            return False
                 
             except Exception as ws_error:
                 self.logger.warning(f"WebSocket 连接失败: {ws_error}")
