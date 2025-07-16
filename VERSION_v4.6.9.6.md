@@ -8,7 +8,7 @@
 
 #### 1. **MCP 组件核心整合** ✅
 - **Enhanced Command MCP**: 整合了 4个命令相关组件
-  - command_mcp + k2_hitl_mcp + k2_new_commands_mcp + local_adapter_mcp
+  - command_mcp + claude_router_mcp + local_adapter_mcp
   - 统一命令执行 + HITL安全控制 + 跨平台适配
 - **Claude Code Router MCP**: 多AI模型智能路由系统
   - 支持 Claude 3.5 Sonnet、Claude 3 Haiku、Kimi K2、GPT-4、GPT-3.5

@@ -200,7 +200,7 @@ class UniversalInstaller {
         'core/components',
         'core/components/command_mcp',
         'core/components/mirror_code_tracker',
-        'core/components/k2_hitl_mcp',
+        'core/components/claude_router_mcp',
         'bin'
       ];
       
