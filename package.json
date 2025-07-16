@@ -1,6 +1,6 @@
 {
   "name": "powerautomation-unified",
-  "version": "4.6.9.7",
+  "version": "4.6.97",
   "description": "PowerAutomation 统一 MCP 解决方案 - Claude Code 同步 + K2 路由 + 工具模式。完全避免 Claude 模型推理余额消耗，保留所有工具功能，自动路由 AI 推理到 K2 服务。",
   "main": "core/components/powerautomation_unified_mcp/unified_mcp_server.py",
   "bin": {
