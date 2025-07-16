@@ -1,4 +1,4 @@
-# PowerAutomation v4.6.97 - 业界领先的工作流自动化解决方案
+# PowerAutomation v4.6.9.8 - 业界领先的个人/企业工作流自动化解决方案
 
 [![npm version](https://badge.fury.io/js/powerautomation-unified.svg)](https://www.npmjs.com/package/powerautomation-unified)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

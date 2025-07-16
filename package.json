@@ -1,7 +1,7 @@
 {
   "name": "powerautomation-unified",
-  "version": "4.6.97",
-  "description": "PowerAutomation v4.6.97 - 业界领先的个人/企业工作流自动化解决方案。六大工作流 + Local Manus 多模型集成 + SmartUI 开发自动化。零成本运行，0.36s 响应，一键安装。",
+  "version": "4.6.9.8",
+  "description": "PowerAutomation v4.6.9.8 - 业界领先的个人/企业工作流自动化解决方案。六大工作流 + Local Manus 多模型集成 + SmartUI 开发自动化。零成本运行，0.36s 响应，一键安装。",
   "main": "core/components/claude_router_mcp/unified_mcp_server.py",
   "bin": {
     "powerautomation": "./bin/powerautomation.js"
