@@ -32,6 +32,10 @@ from .mirror_code_communication import (
     initialize_mirror_code_communication, get_mirror_code_status,
     send_code_sync, send_command_request, cleanup_mirror_code_communication
 )
+from .claude_tool_mode_integration import (
+    ClaudeToolModeIntegration, get_tool_mode_integration,
+    ToolModeIntegrationConfig
+)
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +46,8 @@ class StartupTriggerConfig:
     auto_install_enabled: bool = True
     mirror_code_enabled: bool = True
     hook_integration_enabled: bool = True
+    claude_tool_mode_enabled: bool = True  # 新增：Claude 工具模式
+    k2_service_enabled: bool = True        # 新增：K2 服务
     heartbeat_interval: int = 30
     monitoring_interval: int = 10
     log_level: str = "INFO"
@@ -59,6 +65,7 @@ class StartupTriggerManager:
         self.action_executor = TriggerActionExecutor()
         self.hook_integrator = HookTriggerIntegrator()
         self.mirror_communicator = MirrorCodeCommunicator()
+        self.tool_mode_integration = get_tool_mode_integration()  # 新增：工具模式集成器
         
         # 管理状态
         self.running = False
@@ -93,6 +100,19 @@ class StartupTriggerManager:
         """初始化管理器"""
         try:
             self.logger.info("初始化启动触发管理器...")
+            
+            # 初始化 Claude 工具模式集成器（优先级最高）
+            if self.config.claude_tool_mode_enabled:
+                tool_mode_config = ToolModeIntegrationConfig(
+                    auto_enable_on_startup=True,
+                    auto_configure_k2=self.config.k2_service_enabled,
+                    integrate_with_mirror_code=self.config.mirror_code_enabled,
+                    enable_request_interception=True,
+                    enable_ai_routing=True
+                )
+                self.tool_mode_integration.config = tool_mode_config
+                await self.tool_mode_integration.initialize()
+                self.logger.info("Claude 工具模式集成器初始化完成")
             
             # 初始化 Mirror Code 通信
             if self.config.mirror_code_enabled:
@@ -162,6 +182,42 @@ class StartupTriggerManager:
             
             self.logger.info(f"处理 Claude Code 输入: {text[:100]}...")
             
+            # 优先通过工具模式集成器处理请求
+            if self.config.claude_tool_mode_enabled:
+                request_data = {
+                    "type": "chat_completion",
+                    "content": text,
+                    "context": context,
+                    "endpoint": "/v1/messages"  # 模拟 Claude API 端点
+                }
+                
+                # 拦截和处理请求
+                intercepted_result = await self.tool_mode_integration.intercept_request(request_data)
+                
+                # 如果请求被拦截处理，返回结果
+                if intercepted_result.get("blocked") or intercepted_result.get("routed_to_k2"):
+                    response = {
+                        "processed": True,
+                        "tool_mode_handled": True,
+                        "blocked": intercepted_result.get("blocked", False),
+                        "routed_to_k2": intercepted_result.get("routed_to_k2", False),
+                        "message": intercepted_result.get("reason", ""),
+                        "system_status": get_trigger_system_status(),
+                        "tool_mode_stats": self.tool_mode_integration.get_integration_stats()
+                    }
+                    
+                    if intercepted_result.get("routed_to_k2") and "response" in intercepted_result:
+                        k2_response = intercepted_result["response"]
+                        response["k2_response"] = {
+                            "content": k2_response.get("content", ""),
+                            "success": k2_response.get("success", False),
+                            "cost": k2_response.get("cost", 0.0),
+                            "response_time": k2_response.get("response_time", 0.0)
+                        }
+                    
+                    return response
+            
+            # 如果工具模式未处理，继续原有的触发检测流程
             # 检测触发事件
             trigger_events = await self.trigger_detector.detect_triggers(text, context)
             
@@ -219,6 +275,10 @@ class StartupTriggerManager:
             # 添加系统状态
             response["system_status"] = get_trigger_system_status()
             response["communication_status"] = get_mirror_code_status()
+            
+            # 添加工具模式状态
+            if self.config.claude_tool_mode_enabled:
+                response["tool_mode_stats"] = self.tool_mode_integration.get_integration_stats()
             
             return response
             
@@ -340,6 +400,10 @@ class StartupTriggerManager:
             
             # 停止监控
             await self.stop_monitoring()
+            
+            # 清理工具模式集成器
+            if self.config.claude_tool_mode_enabled:
+                await self.tool_mode_integration.cleanup()
             
             # 清理组件
             cleanup_integration()

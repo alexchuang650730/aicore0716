@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LeftDashboard from './components/LeftDashboard';
 import AIAssistant from './ai-assistant/AIAssistant';
 import DualModeContainer from './components/DualModeContainer';
+import TaskList from './components/TaskList';
 import SmartUIService from './services/SmartUIService';
 import './App.css';
 import './styles/SmartUI.css';
