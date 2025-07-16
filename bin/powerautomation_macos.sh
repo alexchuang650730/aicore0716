@@ -52,27 +52,27 @@ run_powerautomation() {
     case "$1" in
         "start")
             print_message $BLUE "🚀 启动 PowerAutomation 统一 MCP 服务器..."
-            python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action start
+            python3 -m core.components.claude_router_mcp.unified_mcp_server --action start
             ;;
         "stop")
             print_message $BLUE "🛑 停止 PowerAutomation 服务..."
-            python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action stop
+            python3 -m core.components.claude_router_mcp.unified_mcp_server --action stop
             ;;
         "status")
             print_message $BLUE "📊 PowerAutomation 服务状态:"
-            python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action status
+            python3 -m core.components.claude_router_mcp.unified_mcp_server --action status
             ;;
         "test")
             print_message $BLUE "🧪 测试 PowerAutomation 功能:"
-            python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action test
+            python3 -m core.components.claude_router_mcp.unified_mcp_server --action test
             ;;
         "config")
             print_message $BLUE "⚙️ PowerAutomation 配置:"
-            python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action config
+            python3 -m core.components.claude_router_mcp.unified_mcp_server --action config
             ;;
         "--version")
             print_message $BLUE "📋 PowerAutomation 版本信息:"
-            python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action version
+            python3 -m core.components.claude_router_mcp.unified_mcp_server --action version
             ;;
         "--help"|"help"|"")
             show_help

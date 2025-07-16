@@ -14,7 +14,7 @@ git add .
 # 提交更改
 git commit -m "feat: PowerAutomation v4.6.9.7 统一 MCP 解决方案
 
-- 整合所有相关组件为统一的 powerautomation_unified_mcp
+- 整合所有相关组件为统一的 claude_router_mcp
 - 实现 Claude 工具模式，完全避免模型推理余额消耗
 - 集成 K2 服务路由，自动路由 AI 推理任务
 - 确保 Claude Code Sync Service 正常工作
@@ -32,7 +32,7 @@ git push origin main
 - ✅ `package.json`
 - ✅ `bin/powerautomation.js`
 - ✅ `scripts/` 目录下的所有脚本
-- ✅ `core/components/powerautomation_unified_mcp/` 完整目录
+- ✅ `core/components/claude_router_mcp/` 完整目录
 - ✅ `README.md`
 - ✅ `LICENSE`
 

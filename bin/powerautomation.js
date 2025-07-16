@@ -145,14 +145,14 @@ async function main() {
     switch (command) {
         case 'start':
             colorLog('blue', '🚀 启动 PowerAutomation 统一 MCP 服务器...');
-            await runPythonScript('core.components.powerautomation_unified_mcp.unified_mcp_server', ['--action', 'start', ...args.slice(1)]);
+            await runPythonScript('core.components.claude_router_mcp.unified_mcp_server', ['--action', 'start', ...args.slice(1)]);
             break;
 
         case 'stop':
             colorLog('blue', '🛑 停止 PowerAutomation 服务...');
             // 在 Node.js 中实现停止逻辑
             const { exec } = require('child_process');
-            exec('pkill -f "powerautomation_unified_mcp"', (error) => {
+            exec('pkill -f "claude_router_mcp"', (error) => {
                 if (error) {
                     colorLog('yellow', '⚠️ 没有找到运行中的服务');
                 } else {
@@ -164,21 +164,21 @@ async function main() {
         case 'restart':
             colorLog('blue', '🔄 重启 PowerAutomation 服务...');
             const { exec: execRestart } = require('child_process');
-            execRestart('pkill -f "powerautomation_unified_mcp"', () => {
+            execRestart('pkill -f "claude_router_mcp"', () => {
                 setTimeout(async () => {
-                    await runPythonScript('core.components.powerautomation_unified_mcp.unified_mcp_server', ['--action', 'start']);
+                    await runPythonScript('core.components.claude_router_mcp.unified_mcp_server', ['--action', 'start']);
                 }, 2000);
             });
             break;
 
         case 'status':
             colorLog('blue', '📊 PowerAutomation 服务状态:');
-            await runPythonScript('core.components.powerautomation_unified_mcp.unified_mcp_server', ['--action', 'status']);
+            await runPythonScript('core.components.claude_router_mcp.unified_mcp_server', ['--action', 'status']);
             break;
 
         case 'config':
             colorLog('blue', '⚙️ PowerAutomation 配置:');
-            await runPythonScript('core.components.powerautomation_unified_mcp.unified_mcp_server', ['--action', 'config']);
+            await runPythonScript('core.components.claude_router_mcp.unified_mcp_server', ['--action', 'config']);
             break;
 
         case 'test':
@@ -191,7 +191,7 @@ async function main() {
             }
             
             colorLog('blue', '🧪 测试 PowerAutomation 功能:');
-            await runPythonScript('core.components.powerautomation_unified_mcp.unified_mcp_server', ['--action', 'test']);
+            await runPythonScript('core.components.claude_router_mcp.unified_mcp_server', ['--action', 'test']);
             break;
 
         case 'install':
@@ -201,17 +201,17 @@ async function main() {
 
         case 'claude-sync':
             colorLog('blue', '🔗 测试 Claude Code 同步:');
-            await runPythonScript('core.components.powerautomation_unified_mcp.claude_sync.sync_manager', ['--action', 'test']);
+            await runPythonScript('core.components.claude_router_mcp.claude_sync.sync_manager', ['--action', 'test']);
             break;
 
         case 'k2-test':
             colorLog('blue', '🔄 测试 K2 服务路由:');
-            await runPythonScript('core.components.powerautomation_unified_mcp.k2_router.k2_client', ['--action', 'test']);
+            await runPythonScript('core.components.claude_router_mcp.k2_router.k2_client', ['--action', 'test']);
             break;
 
         case 'tool-mode':
             colorLog('blue', '🔧 管理工具模式:');
-            await runPythonScript('core.components.powerautomation_unified_mcp.tool_mode.tool_manager', args.slice(1));
+            await runPythonScript('core.components.claude_router_mcp.tool_mode.tool_manager', args.slice(1));
             break;
 
         default:

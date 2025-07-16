@@ -1,97 +1,8 @@
 {
-<<<<<<< HEAD
-  "name": "claudeditor",
-  "productName": "ClaudEditor Mobile/Desktop",
-  "version": "4.6.9.1",
-  "description": "ClaudEditor - Cross-platform Mobile & Desktop AI Code Editor with PowerAutomation Ecosystem",
-  "author": "PowerAutomation Team",
-  "license": "AGPL-3.0",
-  "homepage": "https://claudeditor.com",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/powerautomation/claudeditor.git"
-  },
-  "bugs": {
-    "url": "https://github.com/powerautomation/claudeditor/issues"
-  },
-  "keywords": [
-    "claude",
-    "editor",
-    "ai",
-    "powerautomation",
-    "mcp",
-    "mobile",
-    "desktop",
-    "cross-platform",
-    "tauri",
-    "react",
-    "typescript",
-    "claude-code-integration"
-  ],
-  "main": "src/main.tsx",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tauri": "tauri",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint src --ext ts,tsx --fix",
-    "format": "prettier --write src/**/*.{ts,tsx,css,json}",
-    "type-check": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@monaco-editor/react": "^4.7.0",
-    "@radix-ui/react-dialog": "^1.0.5",
-    "@radix-ui/react-dropdown-menu": "^2.0.6",
-    "@radix-ui/react-tabs": "^1.0.4",
-    "@radix-ui/react-toast": "^1.1.5",
-    "@tauri-apps/api": "^1.5.3",
-    "axios": "^1.6.2",
-    "clsx": "^2.0.0",
-    "lucide-react": "^0.294.0",
-    "monaco-editor": "^0.45.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.1",
-    "tailwind-merge": "^2.0.0",
-    "uuid": "^9.0.1",
-    "ws": "^8.14.2",
-    "zustand": "^4.4.7"
-  },
-  "devDependencies": {
-    "@tauri-apps/cli": "^1.6.3",
-    "@types/react": "^18.2.37",
-    "@types/react-dom": "^18.2.15",
-    "@types/uuid": "^9.0.7",
-    "@types/ws": "^8.5.10",
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
-    "@vitejs/plugin-react": "^4.1.1",
-    "autoprefixer": "^10.4.16",
-    "eslint": "^8.53.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.4",
-    "postcss": "^8.4.31",
-    "prettier": "^3.1.0",
-    "tailwindcss": "^3.3.5",
-    "typescript": "^5.2.2",
-    "vite": "^4.5.0",
-    "vitest": "^0.34.6"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-  }
-}
-=======
   "name": "powerautomation-unified",
   "version": "4.6.97",
-  "description": "PowerAutomation 统一 MCP 解决方案 - Claude Code 同步 + K2 路由 + 工具模式。完全避免 Claude 模型推理余额消耗，保留所有工具功能，自动路由 AI 推理到 K2 服务。",
-  "main": "core/components/powerautomation_unified_mcp/unified_mcp_server.py",
+  "description": "PowerAutomation v4.6.97 - 革命性 Claude Code 代理解决方案。基于 Groq + Together AI 的高性能 K2 路由，完全避免 Claude 余额消耗，保留所有工具功能。一键安装，零配置，0.36s 快速响应。",
+  "main": "core/components/claude_router_mcp/unified_mcp_server.py",
   "bin": {
     "powerautomation": "./bin/powerautomation.js"
   },
@@ -101,23 +12,30 @@
     "test": "node bin/powerautomation.js test --skip-python-deps",
     "postinstall": "node scripts/postinstall.js",
     "prepublishOnly": "npm run test",
-    "prepack": "node scripts/prepack.js"
+    "prepack": "node scripts/prepack.js",
+    "publish-npm": "node scripts/publish.js"
   },
   "keywords": [
     "powerautomation",
-    "claude",
-    "k2",
-    "mcp",
-    "ai",
-    "automation",
-    "sync",
-    "router",
-    "tool-mode",
-    "claudeditor",
-    "ai-development",
-    "code-sync",
+    "claude-code",
+    "groq",
+    "together-ai",
+    "k2-routing",
+    "zero-cost",
+    "high-performance",
+    "one-click-install",
+    "ai-proxy",
+    "claude-api",
     "cost-optimization",
-    "intelligent-routing"
+    "intelligent-routing",
+    "mcp",
+    "automation",
+    "ai-development",
+    "huggingface",
+    "inference-api",
+    "claude-tools",
+    "startup-trigger",
+    "mirror-code"
   ],
   "author": {
     "name": "PowerAutomation Team",
@@ -146,17 +64,27 @@
     "x64",
     "arm64"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "ws": "^8.14.2",
+    "axios": "^1.6.2"
+  },
   "devDependencies": {},
   "peerDependencies": {},
   "files": [
-    "core/components/powerautomation_unified_mcp/",
+    "core/components/claude_router_mcp/",
     "bin/",
     "scripts/",
+    "claude_code_final_proxy.py",
+    "one_click_install.sh",
     "install_powerautomation_v4697.sh",
+    "install_powerautomation_macos.sh",
+    "claude_code_proxy_config.sh",
+    "quick_start.sh",
     "README.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "PUBLISH_GUIDE.md",
+    "FINAL_PUBLISH_INSTRUCTIONS.md"
   ],
   "preferGlobal": true,
   "publishConfig": {
@@ -165,4 +93,3 @@
   }
 }
 
->>>>>>> 1b3d5d33a126e3538443068c055871c7d8a2eeff

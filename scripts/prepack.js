@@ -22,7 +22,7 @@ function colorLog(color, message) {
 
 function checkRequiredFiles() {
     const requiredFiles = [
-        'core/components/powerautomation_unified_mcp/unified_mcp_server.py',
+        'core/components/claude_router_mcp/unified_mcp_server.py',
         'bin/powerautomation.js',
         'install_powerautomation_v4697.sh',
         'README.md',
@@ -130,7 +130,7 @@ function generateChangelog() {
 - ✅ 一键安装 - npm/curl 一键安装，开箱即用
 
 ### Technical
-- 移除分散的组件目录，统一为 powerautomation_unified_mcp
+- 移除分散的组件目录，统一为 claude_router_mcp
 - 优化 WebSocket 连接和 HTTP 回退机制
 - 改进错误处理和日志记录
 - 增强配置管理和状态监控

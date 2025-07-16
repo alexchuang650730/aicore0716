@@ -179,48 +179,48 @@ case "$1" in
     start)
         echo "🚀 启动 PowerAutomation 统一 MCP 服务器..."
         cd "$INSTALL_DIR"
-        python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action start
+        python3 -m core.components.claude_router_mcp.unified_mcp_server --action start
         ;;
     stop)
         echo "🛑 停止 PowerAutomation 服务..."
-        pkill -f "powerautomation_unified_mcp"
+        pkill -f "claude_router_mcp"
         ;;
     restart)
         echo "🔄 重启 PowerAutomation 服务..."
-        pkill -f "powerautomation_unified_mcp" || true
+        pkill -f "claude_router_mcp" || true
         sleep 2
         cd "$INSTALL_DIR"
-        python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action start
+        python3 -m core.components.claude_router_mcp.unified_mcp_server --action start
         ;;
     status)
         echo "📊 PowerAutomation 服务状态:"
         cd "$INSTALL_DIR"
-        python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action status
+        python3 -m core.components.claude_router_mcp.unified_mcp_server --action status
         ;;
     config)
         echo "⚙️ PowerAutomation 配置:"
         cd "$INSTALL_DIR"
-        python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action config
+        python3 -m core.components.claude_router_mcp.unified_mcp_server --action config
         ;;
     test)
         echo "🧪 测试 PowerAutomation 功能:"
         cd "$INSTALL_DIR"
-        python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action test
+        python3 -m core.components.claude_router_mcp.unified_mcp_server --action test
         ;;
     claude-sync)
         echo "🔗 测试 Claude Code 同步:"
         cd "$INSTALL_DIR"
-        python3 -m core.components.powerautomation_unified_mcp.claude_sync.sync_manager --action test
+        python3 -m core.components.claude_router_mcp.claude_sync.sync_manager --action test
         ;;
     k2-test)
         echo "🔄 测试 K2 服务路由:"
         cd "$INSTALL_DIR"
-        python3 -m core.components.powerautomation_unified_mcp.k2_router.k2_client --action test
+        python3 -m core.components.claude_router_mcp.k2_router.k2_client --action test
         ;;
     tool-mode)
         echo "🔧 管理工具模式:"
         cd "$INSTALL_DIR"
-        python3 -m core.components.powerautomation_unified_mcp.tool_mode.tool_manager "$@"
+        python3 -m core.components.claude_router_mcp.tool_mode.tool_manager "$@"
         ;;
     *)
         echo "PowerAutomation v4.6.9.7 - 统一 MCP 解决方案"
@@ -294,7 +294,7 @@ configure_claude_tool_mode() {
     cd "$INSTALL_DIR/aicore0716"
     
     # 启用工具模式
-    python3 -m core.components.powerautomation_unified_mcp.tool_mode.tool_manager --action enable || {
+    python3 -m core.components.claude_router_mcp.tool_mode.tool_manager --action enable || {
         print_message $YELLOW "⚠️ 工具模式配置可能需要手动调整"
     }
     
@@ -307,7 +307,7 @@ test_installation() {
     cd "$INSTALL_DIR/aicore0716"
     
     # 测试统一 MCP 服务器
-    python3 -m core.components.powerautomation_unified_mcp.unified_mcp_server --action test || {
+    python3 -m core.components.claude_router_mcp.unified_mcp_server --action test || {
         print_message $YELLOW "⚠️ 部分功能测试失败，但安装已完成"
         return
     }

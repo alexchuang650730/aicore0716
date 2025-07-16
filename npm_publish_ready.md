@@ -101,7 +101,7 @@ powerautomation-unified@4.6.9.7
 │   ├── postinstall.js (5.9kB)
 │   ├── prepack.js (5.8kB)
 │   └── publish.js (7.9kB)
-└── core/components/powerautomation_unified_mcp/
+└── core/components/claude_router_mcp/
     ├── unified_mcp_server.py (16.6kB)
     ├── claude_sync/sync_manager.py (20.7kB)
     ├── k2_router/k2_client.py (16.7kB)
