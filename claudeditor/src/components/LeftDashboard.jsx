@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import LocalFileManager from './LocalFileManager';
 import './LeftDashboard.css';
 
 const LeftDashboard = () => {
@@ -29,6 +30,10 @@ const LeftDashboard = () => {
   ]);
 
   const [currentSystem, setCurrentSystem] = useState('mac'); // mac, windows, linux
+  
+  // 文件管理状态
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isFileManagerExpanded, setIsFileManagerExpanded] = useState(true);
 
   const quickCommands = {
     claude: [
@@ -89,6 +94,39 @@ const LeftDashboard = () => {
 
   const executeProjectAction = (action) => {
     console.log(`执行项目操作: ${action}`);
+  };
+
+  // 文件管理处理函数
+  const handleFileSelect = (file) => {
+    setSelectedFile(file);
+    console.log(`📁 选择文件: ${file.name}`);
+    
+    // 通知中间编辑区显示文件
+    if (window.claudeEditorBridge) {
+      window.claudeEditorBridge.openFile(file);
+    }
+  };
+
+  const handleFileEdit = (file) => {
+    console.log(`📝 编辑文件: ${file.name}`);
+    
+    // 通知中间编辑区编辑文件
+    if (window.claudeEditorBridge) {
+      window.claudeEditorBridge.editFile(file);
+    }
+  };
+
+  const handleReleaseDeploy = (release) => {
+    console.log(`🚀 部署 Release: ${release.name}`);
+    
+    // 通知中间演示区部署 release
+    if (window.claudeEditorBridge) {
+      window.claudeEditorBridge.deployRelease(release);
+    }
+  };
+
+  const toggleFileManager = () => {
+    setIsFileManagerExpanded(!isFileManagerExpanded);
   };
 
   return (
@@ -179,6 +217,44 @@ const LeftDashboard = () => {
             <button className="hitl-btn">📋 待确认任务列表</button>
             <button className="hitl-btn">⚙️ HITL 设置</button>
           </div>
+        </div>
+
+        {/* 本地文件管理 */}
+        <div className="subsection file-manager-section">
+          <div className="subsection-header">
+            <h4>📁 本地文件管理</h4>
+            <button 
+              className="toggle-btn"
+              onClick={toggleFileManager}
+              title={isFileManagerExpanded ? "收起文件管理器" : "展开文件管理器"}
+            >
+              {isFileManagerExpanded ? '🔼' : '🔽'}
+            </button>
+          </div>
+          
+          {isFileManagerExpanded && (
+            <div className="file-manager-container">
+              <LocalFileManager
+                onFileSelect={handleFileSelect}
+                onFileEdit={handleFileEdit}
+                onReleaseDeploy={handleReleaseDeploy}
+                className="dashboard-file-manager"
+              />
+            </div>
+          )}
+          
+          {selectedFile && (
+            <div className="selected-file-info">
+              <div className="selected-file-header">
+                <span className="file-icon">{selectedFile.icon}</span>
+                <span className="file-name">{selectedFile.name}</span>
+              </div>
+              <div className="selected-file-meta">
+                <span className="file-path">{selectedFile.path}</span>
+                <span className="file-size">{selectedFile.size}</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
