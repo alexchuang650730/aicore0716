@@ -29,25 +29,40 @@ class MultiProviderClaudeProxy:
                 "priority": 1
             },
             {
+                "name": "HuggingFace",
+                "endpoint": "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium",
+                "api_key": os.getenv("HF_TOKEN", ""),
+                "model": "microsoft/DialoGPT-medium",
+                "priority": 2,
+                "is_hf": True  # 特殊标记，因为 HF API 格式不同
+            },
+            {
+                "name": "Novia",
+                "endpoint": "https://api.novia.ai/v1",
+                "api_key": os.getenv("NOVIA_API_KEY", ""),
+                "model": "novia-chat",
+                "priority": 3
+            },
+            {
                 "name": "DeepSeek",
                 "endpoint": "https://api.deepseek.com/v1",
                 "api_key": os.getenv("DEEPSEEK_API_KEY", ""),
                 "model": "deepseek-chat",
-                "priority": 2
+                "priority": 4
             },
             {
                 "name": "Qwen",
                 "endpoint": "https://dashscope.aliyuncs.com/compatible-mode/v1",
                 "api_key": os.getenv("QWEN_API_KEY", ""),
                 "model": "qwen-turbo",
-                "priority": 3
+                "priority": 5
             },
             {
                 "name": "Local-Ollama",
                 "endpoint": "http://localhost:11434/v1",
                 "api_key": "ollama",
                 "model": "qwen2.5:7b",
-                "priority": 4
+                "priority": 6
             }
         ]
         
@@ -252,47 +267,98 @@ class MultiProviderClaudeProxy:
             try:
                 logger.info(f"📡 尝试 K2 Provider {i+1}/{len(self.active_providers)}: {provider['name']}")
                 
-                k2_data = {
-                    "model": provider["model"],
-                    "messages": [{"role": "user", "content": user_content}],
-                    "stream": False,
-                    "max_tokens": 4000
-                }
-                
-                async with ClientSession() as session:
-                    headers = {
-                        "Authorization": f"Bearer {provider['api_key']}",
-                        "Content-Type": "application/json",
-                        "User-Agent": "PowerAutomation-Proxy/4.6.97"
+                # 检查是否是 HuggingFace API
+                if provider.get("is_hf", False):
+                    # HuggingFace Inference API 格式
+                    hf_data = {
+                        "inputs": user_content,
+                        "parameters": {
+                            "max_new_tokens": 200,
+                            "temperature": 0.7,
+                            "return_full_text": False
+                        }
                     }
                     
-                    async with session.post(
-                        f"{provider['endpoint']}/chat/completions",
-                        json=k2_data,
-                        headers=headers,
-                        timeout=30
-                    ) as response:
-                        if response.status == 200:
-                            k2_response = await response.json()
-                            content = k2_response.get("choices", [{}])[0].get("message", {}).get("content", f"Hello from {provider['name']}!")
-                            
-                            claude_response = {
-                                "id": f"msg_01PowerAutomation{provider['name']}",
-                                "type": "message",
-                                "role": "assistant",
-                                "content": [{"type": "text", "text": content}],
-                                "model": "claude-3-sonnet-20240229",
-                                "stop_reason": "end_turn",
-                                "stop_sequence": None,
-                                "usage": {"input_tokens": 10, "output_tokens": 50}
-                            }
-                            
-                            logger.info(f"✅ K2 Provider {provider['name']} 响应成功")
-                            return web.json_response(claude_response)
-                        else:
-                            error_text = await response.text()
-                            logger.warning(f"⚠️ Provider {provider['name']} 失败 ({response.status}): {error_text[:100]}...")
-                            continue
+                    async with ClientSession() as session:
+                        headers = {
+                            "Authorization": f"Bearer {provider['api_key']}",
+                            "Content-Type": "application/json",
+                            "User-Agent": "PowerAutomation-Proxy/4.6.97"
+                        }
+                        
+                        async with session.post(
+                            provider['endpoint'],
+                            json=hf_data,
+                            headers=headers,
+                            timeout=30
+                        ) as response:
+                            if response.status == 200:
+                                hf_response = await response.json()
+                                if isinstance(hf_response, list) and hf_response:
+                                    content = hf_response[0].get("generated_text", f"Hello from {provider['name']}!")
+                                else:
+                                    content = f"Hello from {provider['name']}!"
+                                
+                                claude_response = {
+                                    "id": f"msg_01PowerAutomation{provider['name']}",
+                                    "type": "message",
+                                    "role": "assistant",
+                                    "content": [{"type": "text", "text": content}],
+                                    "model": "claude-3-sonnet-20240229",
+                                    "stop_reason": "end_turn",
+                                    "stop_sequence": None,
+                                    "usage": {"input_tokens": 10, "output_tokens": 50}
+                                }
+                                
+                                logger.info(f"✅ K2 Provider {provider['name']} 响应成功")
+                                return web.json_response(claude_response)
+                            else:
+                                error_text = await response.text()
+                                logger.warning(f"⚠️ Provider {provider['name']} 失败 ({response.status}): {error_text[:100]}...")
+                                continue
+                else:
+                    # 标准 OpenAI 兼容 API 格式
+                    k2_data = {
+                        "model": provider["model"],
+                        "messages": [{"role": "user", "content": user_content}],
+                        "stream": False,
+                        "max_tokens": 4000
+                    }
+                    
+                    async with ClientSession() as session:
+                        headers = {
+                            "Authorization": f"Bearer {provider['api_key']}",
+                            "Content-Type": "application/json",
+                            "User-Agent": "PowerAutomation-Proxy/4.6.97"
+                        }
+                        
+                        async with session.post(
+                            f"{provider['endpoint']}/chat/completions",
+                            json=k2_data,
+                            headers=headers,
+                            timeout=30
+                        ) as response:
+                            if response.status == 200:
+                                k2_response = await response.json()
+                                content = k2_response.get("choices", [{}])[0].get("message", {}).get("content", f"Hello from {provider['name']}!")
+                                
+                                claude_response = {
+                                    "id": f"msg_01PowerAutomation{provider['name']}",
+                                    "type": "message",
+                                    "role": "assistant",
+                                    "content": [{"type": "text", "text": content}],
+                                    "model": "claude-3-sonnet-20240229",
+                                    "stop_reason": "end_turn",
+                                    "stop_sequence": None,
+                                    "usage": {"input_tokens": 10, "output_tokens": 50}
+                                }
+                                
+                                logger.info(f"✅ K2 Provider {provider['name']} 响应成功")
+                                return web.json_response(claude_response)
+                            else:
+                                error_text = await response.text()
+                                logger.warning(f"⚠️ Provider {provider['name']} 失败 ({response.status}): {error_text[:100]}...")
+                                continue
                             
             except Exception as e:
                 logger.warning(f"⚠️ Provider {provider['name']} 连接失败: {e}")
@@ -348,12 +414,16 @@ async def main():
     print("")
     print("🌐 支持的 K2 服务提供商:")
     print("   1. Infini-AI (需要 INFINI_AI_API_KEY)")
-    print("   2. DeepSeek (需要 DEEPSEEK_API_KEY)")
-    print("   3. Qwen (需要 QWEN_API_KEY)")
-    print("   4. Local Ollama (本地服务)")
+    print("   2. HuggingFace (需要 HF_TOKEN)")
+    print("   3. Novia (需要 NOVIA_API_KEY)")
+    print("   4. DeepSeek (需要 DEEPSEEK_API_KEY)")
+    print("   5. Qwen (需要 QWEN_API_KEY)")
+    print("   6. Local Ollama (本地服务)")
     print("")
     print("🔑 环境变量配置:")
     print("   export INFINI_AI_API_KEY='your-infini-ai-key'")
+    print("   export HF_TOKEN='your-huggingface-token'")
+    print("   export NOVIA_API_KEY='your-novia-key'")
     print("   export DEEPSEEK_API_KEY='your-deepseek-key'")
     print("   export QWEN_API_KEY='your-qwen-key'")
     print("   export ANTHROPIC_API_KEY='your-claude-key'")
