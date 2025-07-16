@@ -1,81 +1,181 @@
-# ClaudEditor UI Components
+# ClaudeEditor v4.6.9.7 - AI-Powered Code Editor
 
-ClaudEditor用户界面组件集合，提供完整的测试管理和开发界面。
+## 🚀 Overview
 
-## 📁 **文件说明**
+ClaudeEditor is an advanced AI-powered code editor built with React and Monaco Editor, featuring intelligent collaboration, real-time monitoring, and seamless integration with PowerAutomation AI systems.
 
-### **核心界面组件**
+## ✨ Features
 
-#### **claudeditor_ui_main.py**
-- **功能**: ClaudEditor主界面入口
-- **大小**: 11KB
-- **用途**: 主要的用户界面控制器
+### 🎯 Core Features
+- **Three-Column Responsive Layout** - Left panel (monitoring), main content area, right panel (AI chat)
+- **AI Model Switching** - Support for K2 Advanced and Claude Standard models
+- **Monaco Editor Integration** - Full LSP capabilities with syntax highlighting and intelligent code completion
+- **Real-time Status Monitoring** - Six workflow dashboard with live status tracking
+- **AI Chat Assistant** - Intelligent collaboration with context-aware responses
 
-#### **claudeditor_simple_ui_server.py**
-- **功能**: 简化的UI服务器
-- **大小**: 20KB
-- **用途**: 轻量级的Web界面服务
+### 🔧 Technical Features
+- **Multi-modal File Upload** - Support for images, videos, audio, documents
+- **Command MCP Integration** - Advanced command processing and execution
+- **File Management System** - Deployment tracking and version control
+- **Responsive Design** - Optimized for desktop, tablet, and mobile devices
+- **PowerAutomation AI Integration** - Core system connectivity and workflow automation
 
-#### **claudeditor_agui_interface.py**
-- **功能**: AG-UI接口组件
-- **大小**: 26KB
-- **用途**: 智能UI生成和管理界面
+### 📊 Monitoring Dashboard
+- **积分系统** - Token usage tracking and scoring
+- **系统状态** - Real-time system health monitoring  
+- **六大工作流** - Code generation, UI design, API development, database design, testing automation, deployment pipeline
+- **Git仓库统计** - Repository analytics and commit tracking
 
-#### **claudeditor_testing_management_ui.py**
-- **功能**: 测试管理界面
-- **大小**: 12KB
-- **用途**: 测试用例管理和执行监控
+## 🛠️ Technology Stack
 
-## 🎯 **使用方式**
+- **Frontend**: React 18 + Vite
+- **Editor**: Monaco Editor with LSP support
+- **Styling**: CSS3 with responsive design
+- **Backend Integration**: PowerAutomation AI MCP
+- **Build Tool**: Vite with optimized bundling
+- **Package Manager**: npm
 
-### **启动主界面**
+## 🚦 Getting Started
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Modern web browser
+
+### Installation
+
 ```bash
-python ui/claudeditor/claudeditor_ui_main.py
+# Clone the repository
+git clone https://github.com/PowerAutomationAI/claudeditor-v4.6.9.7-edition.git
+
+# Navigate to project directory
+cd claudeditor-v4.6.9.7-edition
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-### **启动简化服务器**
+### Development
+
 ```bash
-python ui/claudeditor/claudeditor_simple_ui_server.py
+# Start development server with hot reload
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-### **启动测试管理界面**
+## 📁 Project Structure
+
+```
+claudeditor/
+├── src/
+│   ├── components/          # React components
+│   │   ├── SmartUILayout.jsx    # Main layout component
+│   │   ├── MonacoEditorComponent.jsx  # Code editor
+│   │   └── ...
+│   ├── services/           # Service layer
+│   ├── styles/            # CSS stylesheets
+│   └── main.jsx          # Application entry point
+├── public/               # Static assets
+├── dist/                # Production build output
+└── package.json         # Project configuration
+```
+
+## 🎨 UI Components
+
+### SmartUILayout
+- Main application layout with three-column design
+- Mode switching (Edit, Demo, Chat)
+- Responsive breakpoints for different screen sizes
+
+### MonacoEditorComponent  
+- Advanced code editor with LSP support
+- Syntax highlighting for multiple languages
+- Intelligent code completion and error detection
+
+### AI Chat Panel
+- Real-time AI conversation interface
+- Multi-modal file upload support
+- Context-aware response generation
+
+## 🔌 API Integration
+
+### PowerAutomation AI MCP
+- Command processing and execution
+- Workflow automation and monitoring
+- Real-time status synchronization
+
+### Model Providers
+- K2 Advanced: High-performance AI model
+- Claude Standard: Balanced performance and efficiency
+
+## 📱 Responsive Design
+
+- **Desktop**: Full three-column layout (300px + 1fr + 300px)
+- **Tablet**: Adaptive layout with collapsible panels  
+- **Mobile**: Single-column stacked layout
+
+## 🚀 Deployment
+
+### Production Build
 ```bash
-python ui/claudeditor/claudeditor_testing_management_ui.py
+npm run build
 ```
 
-## 🔧 **集成说明**
+### Deployment Options
+- Static hosting (Netlify, Vercel, GitHub Pages)
+- Docker containerization
+- Traditional web server deployment
 
-这些UI组件与以下系统深度集成：
+## 🔧 Configuration
 
-- **core/components/test_mcp/** - 测试管理平台
-- **core/components/ag_ui_mcp/** - AG-UI组件生成器
-- **core/components/smartui_mcp/** - 智能UI组件
-- **core/components/stagewise_mcp/** - 阶段式测试框架
-
-## 📊 **架构关系**
-
-```
-ui/claudeditor/
-├── claudeditor_ui_main.py              # 主界面控制器
-├── claudeditor_simple_ui_server.py     # 轻量级Web服务
-├── claudeditor_agui_interface.py       # AG-UI智能界面
-└── claudeditor_testing_management_ui.py # 测试管理界面
+### Environment Variables
+```env
+VITE_API_BASE_URL=your_api_endpoint
+VITE_AI_MODEL_ENDPOINT=your_model_endpoint
 ```
 
-## 🚀 **开发指南**
+### Build Configuration
+See `vite.config.js` for build customization options.
 
-### **添加新界面组件**
-1. 在此目录下创建新的Python文件
-2. 遵循 `claudeditor_` 前缀命名规范
-3. 集成相应的MCP组件
-4. 更新此README文档
+## 🤝 Contributing
 
-### **界面主题**
-支持多种界面主题，与AG-UI MCP组件的主题系统保持一致。
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Monaco Editor team for the excellent code editor
+- React team for the robust frontend framework
+- PowerAutomation AI for the intelligent backend services
+
+## 📞 Support
+
+For support and questions:
+- Create an issue on GitHub
+- Contact: powerautomation@ai.com
+- Documentation: [Wiki](https://github.com/PowerAutomationAI/claudeditor-v4.6.9.7-edition/wiki)
 
 ---
 
-**维护**: PowerAutomation Team  
-**版本**: 4.2.0  
-**更新**: 2025-01-09
+**Version**: v4.6.9.7 claudeditor-edition  
+**Build**: Production Ready  
+**Last Updated**: 2025-07-16
 
