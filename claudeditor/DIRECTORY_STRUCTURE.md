@@ -4,18 +4,21 @@
 
 ```
 claudeditor/
-├── scripts/                    # 安装和配置脚本
+├── components/                 # 组件和生成器
+│   └── claudeditor_test_generator.py
+├── scripts/                   # 安装和配置脚本
 │   └── auto_setup_claudeeditor.sh
-├── integration/               # 集成测试和组件
+├── integration/              # 集成测试和组件
 │   ├── claude_claudeditor_integration_simple_test.py
 │   ├── claude_claudeditor_integration_test.py
 │   └── claude_code_memoryos_integration.py
-├── tests/                     # 单元测试
-├── api/                       # API 相关文件
-├── src/                       # 源代码
-├── ui/                        # 用户界面组件
-├── static/                    # 静态资源
-├── templates/                 # 模板文件
+├── tests/                    # 单元测试
+├── utils/                    # 工具函数
+├── api/                      # API 相关文件
+├── src/                      # 源代码
+├── ui/                       # 用户界面组件
+├── static/                   # 静态资源
+├── templates/                # 模板文件
 └── 主要 Python 文件
     ├── claudeditor_ui_main.py
     ├── claudeditor_agui_interface.py
@@ -26,6 +29,10 @@ claudeditor/
 ```
 
 ## 🎯 目录说明
+
+### **components/**
+- 包含 ClaudeEditor 的组件和测试生成器
+- `claudeditor_test_generator.py`: 测试生成器
 
 ### **scripts/**
 - 包含 ClaudeEditor 的安装和配置脚本
@@ -39,6 +46,10 @@ claudeditor/
 ### **tests/**
 - 单元测试文件目录
 - 用于存放各种测试用例
+
+### **utils/**
+- 工具函数和辅助模块
+- 通用功能组件
 
 ### **api/**
 - API 相关的后端代码
@@ -74,11 +85,21 @@ python claudeditor_ui_main.py
 
 ## 📋 文件移动记录
 
-以下文件已从根目录移动到 claudeditor 目录：
+以下文件已从其他位置移动到 claudeditor 目录：
 
+- `core/components/claudeditor_test_generator.py` → `claudeditor/components/`
 - `auto_setup_claudeeditor.sh` → `claudeditor/scripts/`
 - `claude_claudeditor_integration_simple_test.py` → `claudeditor/integration/`
 - `claude_claudeditor_integration_test.py` → `claudeditor/integration/`
 - `claude_code_memoryos_integration.py` → `claudeditor/integration/`
 
 所有相关的引用和配置文件已相应更新。
+
+## 📊 目录统计
+
+- Python 文件: 21 个
+- JavaScript 文件: 7,176 个
+- HTML 文件: 8 个
+- 总文件数: 14,183 个
+
+ClaudeEditor 现在拥有完整、有序的目录结构！
